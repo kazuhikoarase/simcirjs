@@ -1,0 +1,227 @@
+<!doctype html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=UTF-8" />
+<script type="text/javascript" src="jquery-2.1.1.js"></script>
+<script type="text/javascript" src="simcir.js"></script>
+<link rel="stylesheet" type="text/css" href="simcir.css" />
+<script type="text/javascript" src="simcir-basicset.js"></script>
+<link rel="stylesheet" type="text/css" href="simcir-basicset.css" />
+<script type="text/javascript" src="simcir-library.js"></script>
+<style type="text/css">
+* {
+  font-family: "Meiryo UI", arial, sans-serif;
+}
+
+.code {
+  margin: 16px 0px 16px 0px;
+  padding: 4px;
+  border-width: 0px 0px 0px 4px;
+  border-color: #cccccc;
+  border-style: solid;
+  background-color: #f0f0f0;
+  white-space: pre;
+}
+
+.note {
+  color: #0000ff;
+}
+</style>
+<title>SimcirJS</title>
+</head>
+<body>
+
+<h1>SimcirJS</h1>
+
+<div style="margin:16px 0px 16px 0px">
+  SimcirJS(a.k.a. Simcir) is a circuit simulator in HTML5 and JavaScript.
+</div>
+
+<h2>Usage</h2>
+<ul>
+  <li>Choose a device from the toolbox and move to right side.</li>
+  <li>Connect them by drag operation.</li>
+  <li>Click an input node to disconnect.</li>
+  <li>Move a device back to the toolbox if you don't use.</li>
+  <li>Ctrl+Click(Mac:command+Click) to toggle view (Live circuit or JSON data).</li>
+  <li>Double-Click a label to edit device name.</li>
+  <li>Double-Click a library to open the circuit inside.</li>
+</ul>
+
+<!--
+Specify width and height only.
+All the other attributes will be used defaults.
+-->
+<div class="simcir">
+{
+  "width":800,
+  "height":400
+}
+</div>
+
+<h3>Embed your circuit</h3>
+<p>
+Ctrl+Click(Mac:command+Click) on your circuit and copy circuit data.
+<br/>
+Then paste your circuit into template below.
+</p>
+
+<div class="code"
+>&lt;!doctype html&gt;
+&lt;html&gt;
+&lt;head&gt;
+&lt;meta http-equiv="Content-Type" content="text/html;charset=UTF-8" /&gt;
+&lt;script type="text/javascript" src="jquery-2.1.1.js"&gt;&lt;/script&gt;
+&lt;script type="text/javascript" src="simcir.js"&gt;&lt;/script&gt;
+&lt;link rel="stylesheet" type="text/css" href="simcir.css" /&gt;
+&lt;script type="text/javascript" src="simcir-basicset.js"&gt;&lt;/script&gt;
+&lt;link rel="stylesheet" type="text/css" href="simcir-basicset.css" /&gt;
+&lt;script type="text/javascript" src="simcir-library.js"&gt;&lt;/script&gt;
+&lt;title&gt;&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;div class="simcir"&gt;
+<span class="note">&lt;!-- paste here your circuit data --&gt;</span>
+&lt;/div&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</div>
+
+<h3>Reuse a circuit</h3>
+<p>
+To reuse a circuit as library, use device 'In' and 'Out'.
+</p>
+<div class="simcir">
+{
+  "width":500,
+  "height":200,
+  "showToolbox":true,
+  "toolbox":[
+    {"type":"In"},
+    {"type":"Out"},
+    {"type":"DC"},
+    {"type":"PushOff"},
+    {"type":"PushOn"},
+    {"type":"Toggle"},
+    {"type":"NAND"}
+  ],
+  "devices":[
+    {"type":"DC","id":"dev0","x":64,"y":80,"label":"DC"},
+    {"type":"PushOff","id":"dev1","x":120,"y":48,"label":"PushOff"},
+    {"type":"PushOff","id":"dev2","x":120,"y":112,"label":"PushOff"},
+    {"type":"In","id":"dev3","x":176,"y":48,"label":"~S"},
+    {"type":"In","id":"dev4","x":176,"y":112,"label":"~R"},
+    {"type":"NAND","id":"dev5","x":232,"y":56,"label":"NAND"},
+    {"type":"NAND","id":"dev6","x":232,"y":104,"label":"NAND"},
+    {"type":"Out","id":"dev7","x":288,"y":56,"label":"Q"},
+    {"type":"Out","id":"dev8","x":288,"y":104,"label":"~Q"}
+  ],
+  "connectors":[
+    {"from":"dev1.in0","to":"dev0.out0"},
+    {"from":"dev2.in0","to":"dev0.out0"},
+    {"from":"dev3.in0","to":"dev1.out0"},
+    {"from":"dev4.in0","to":"dev2.out0"},
+    {"from":"dev5.in0","to":"dev3.out0"},
+    {"from":"dev5.in1","to":"dev6.out0"},
+    {"from":"dev6.in0","to":"dev5.out0"},
+    {"from":"dev6.in1","to":"dev4.out0"},
+    {"from":"dev7.in0","to":"dev5.out0"},
+    {"from":"dev8.in0","to":"dev6.out0"}
+  ]
+}
+</div>
+<p>
+Then register it in JavaScript and add to the toolbox in HTML.
+</p>
+<div class="code"
+>simcir.registerDevice('<span class="note">MyDevice</span>',
+<span class="note">// paste here your circuit data</span>
+);
+</div>
+<div class="code"
+>&lt;div class="simcir"&gt;
+         &#x22ee;
+  "toolbox":[
+    {"type":"DC"},
+    {"type":"PushOff"},
+         &#x22ee;
+    {"type":"<span class="note">MyDevice</span>"}
+  ],
+         &#x22ee;
+&lt;/div&gt;
+</div>
+<p>
+In this case, a new device 'RS-FF' is added.
+Try to Double-Click the 'RS-FF' :)
+</p>
+<div class="simcir">
+{
+  "width":500,
+  "height":200,
+  "showToolbox":true,
+  "toolbox":[
+    {"type":"DC"},
+    {"type":"PushOff"},
+    {"type":"RS-FF"}
+  ],
+  "devices":[
+    {"type":"DC","id":"dev0","x":104,"y":80,"label":"DC"},
+    {"type":"PushOff","id":"dev1","x":160,"y":48,"label":"PushOff"},
+    {"type":"PushOff","id":"dev2","x":160,"y":112,"label":"PushOff"},
+    {"type":"RS-FF","id":"dev3","x":216,"y":80,"label":"RS-FF"}
+  ],
+  "connectors":[
+    {"from":"dev1.in0","to":"dev0.out0"},
+    {"from":"dev2.in0","to":"dev0.out0"},
+    {"from":"dev3.in0","to":"dev1.out0"},
+    {"from":"dev3.in1","to":"dev2.out0"}
+  ]
+}
+</div>
+
+<h3>Customize a device</h3>
+<p>
+color, number of inputs, freq ...
+</p>
+<div class="simcir">
+{
+  "width":500,
+  "height":300,
+  "showToolbox":true,
+  "toolbox":[
+    {"type":"DC"},
+    {"type":"Toggle"},
+    {"type":"LED","color":"#00ff00","label":"LED(G)"},
+    {"type":"NAND","numInputs":"3","label":"NAND(3in)"},
+    {"type":"OSC","freq":1,"label":"OSC(1Hz)"}
+  ],
+  "devices":[
+    {"type":"NAND","numInputs":"3","label":"NAND(3in)","id":"dev0","x":200,"y":80},
+    {"type":"Toggle","id":"dev1","x":144,"y":32,"label":"Toggle"},
+    {"type":"Toggle","id":"dev2","x":144,"y":80,"label":"Toggle"},
+    {"type":"Toggle","id":"dev3","x":144,"y":128,"label":"Toggle"},
+    {"type":"DC","id":"dev4","x":88,"y":80,"label":"DC"},
+    {"type":"LED","color":"#00ff00","label":"LED(G)","id":"dev5","x":256,"y":80},
+    {"type":"OSC","freq":1,"label":"OSC(1Hz)","id":"dev6","x":112,"y":208},
+    {"type":"LED","color":"#00ff00","label":"LED(G)","id":"dev7","x":176,"y":208}
+  ],
+  "connectors":[
+    {"from":"dev0.in0","to":"dev1.out0"},
+    {"from":"dev0.in1","to":"dev2.out0"},
+    {"from":"dev0.in2","to":"dev3.out0"},
+    {"from":"dev1.in0","to":"dev4.out0"},
+    {"from":"dev2.in0","to":"dev4.out0"},
+    {"from":"dev3.in0","to":"dev4.out0"},
+    {"from":"dev5.in0","to":"dev0.out0"},
+    {"from":"dev7.in0","to":"dev6.out0"}
+  ]
+}
+</div>
+
+<hr/>
+<div style="text-align: right;">
+Contents Copyright &copy; Kazuhiko Arase
+</div>
+
+</body>
+</html>
