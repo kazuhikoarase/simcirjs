@@ -150,3 +150,13 @@
   width: 0;
   height: 0;
 }
+
+.simcir-doc TABLE {
+  border-collapse: collapse;
+}
+
+.simcir-doc TABLE, .simcir-doc TH, .simcir-doc TD {
+  border-width: 1px;
+  border-style: solid;
+  vorder-color: $cccccc;
+}

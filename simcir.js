@@ -364,7 +364,8 @@ var simcir = function($) {
       $dev.attr('class', 'simcir-device');
     }
     controller($dev, createDeviceController(
-        {$ui: $dev, deviceDef: deviceDef, headless: headless}) );
+        {$ui: $dev, deviceDef: deviceDef,
+          headless: headless, doc: null}) );
     var factory = factories[deviceDef.type];
     if (factory) {
       factory(controller($dev) );
@@ -724,7 +725,7 @@ var simcir = function($) {
         var $placeHolder = $('<div></div>').
           addClass('simcir').
           text(JSON.stringify(data) );
-        setupToPlaceHolder($placeHolder);
+        setupSimcir($placeHolder);
         showDialog(title, $placeHolder);
       });
     };
@@ -1265,13 +1266,20 @@ var simcir = function($) {
           attr({cx: cx, cy: cy, r: unit / 4}).
           attr('class', 'simcir-port-hole') );
       };
+      device.doc = {
+        description: 'With this device...',
+        params: [
+          {name: 'aaa', description: 'bbb'},
+          {name: 'ccc', description: 'ddd'}
+        ]
+      };
     };
   };
   // register built-in devices
   registerDevice('In', createPortFactory('in') );
   registerDevice('Out', createPortFactory('out') );
 
-  var setupToPlaceHolder = function($placeHolder) {
+  var setupSimcir = function($placeHolder) {
     var text = $placeHolder.text().replace(/^\s+|\s+$/g, '');
     var $workspace = simcir.createWorkspace(
         JSON.parse(text || '{}') );
@@ -1301,25 +1309,47 @@ var simcir = function($) {
     return $workspace;
   };
 
+  var setupSimcirDoc = function($placeHolder) {
+    var $table = $('<table><tbody></tbody></table>');
+    var $tbody = $table.children('tbody');
+    $.each(defaultToolbox, function(i, deviceDef) {
+      var $dev = createDevice(deviceDef);
+      var device = controller($dev);
+      var size = device.getSize();
+      var $tr = $('<tr></tr>');
+      $tr.append($('<td></td>').text(deviceDef.type) );
+      $tr.append($('<td></td>').text(size.width + 'x' +size.height) );
+      $tr.append($('<td></td>').text(device.doc? device.doc.description : '') );
+      $tbody.append($tr);
+    });
+    $placeHolder.append($table);
+  };
+
   $(function() {
     $('.simcir').each(function() {
-      setupToPlaceHolder($(this) );
+      setupSimcir($(this) );
+    });
+  });
+
+  $(function() {
+    $('.simcir-doc').each(function() {
+      setupSimcirDoc($(this) );
     });
   });
 
   return {
-    createSVGElement: createSVGElement,
-    createWorkspace: createWorkspace,
-    setupToPlaceHolder: setupToPlaceHolder,
     registerDevice: registerDevice,
-    controller: controller,
+    setupSimcir: setupSimcir,
+    createWorkspace: createWorkspace,
+    createSVGElement: createSVGElement,
     addClass: addClass,
     removeClass: removeClass,
     hasClass: hasClass,
     offset: offset,
     transform: transform,
     enableEvents: enableEvents,
-    unit: unit,
-    graphics: graphics
+    graphics: graphics,
+    controller: controller,
+    unit: unit
   };
 }(jQuery);
