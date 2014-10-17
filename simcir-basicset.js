@@ -88,14 +88,14 @@
     g.lineTo(x + width, y + height / 2);
     g.lineTo(x, y + height);
     g.lineTo(x, y);
-    g.closePath();
+    g.closePath(true);
   };
   var drawAND = function(g, x, y, width, height) {
     g.moveTo(x, y);
     g.curveTo(x + width, y, x + width, y + height / 2);
     g.curveTo(x + width, y + height, x, y + height);
     g.lineTo(x, y);
-    g.closePath();
+    g.closePath(true);
   };
   var drawOR = function(g, x, y, width, height) {
     var depth = width * 0.2;
@@ -104,7 +104,7 @@
     g.curveTo(x + width, y + height, x, y + height);
     g.curveTo(x + depth, y + height, x + depth, y + height / 2);
     g.curveTo(x + depth, y, x, y);
-    g.closePath();
+    g.closePath(true);
   };
   var drawEOR = function(g, x, y, width, height) {
     drawOR(g, x + 3, y, width - 3, height);
@@ -148,7 +148,19 @@
       var out1 = device.addOutput();
       var on = (type == 'PushOff');
 
-      if (!device.headless) {
+      device.$ui.on('inputValueChange', function() {
+        if (on) {
+          out1.setValue(in1.getValue() );
+        }
+      });
+      var updateOutput = function() {
+        out1.setValue(on? in1.getValue() : null);
+      };
+      updateOutput();
+
+      var super_createUI = device.createUI;
+      device.createUI = function() {
+        super_createUI();
         var size = device.getSize();
         var $button = $s.createSVGElement('rect').
           attr({x: size.width / 4, y: size.height / 4,
@@ -196,17 +208,7 @@
           $button.off('mousedown', button_mouseDownHandler);
         });
         $s.addClass(device.$ui, 'simcir-basicset-switch');
-      }
-
-      device.$ui.on('inputValueChange', function() {
-        if (on) {
-          out1.setValue(in1.getValue() );
-        }
-      });
-      var updateOutput = function() {
-        out1.setValue(on? in1.getValue() : null);
       };
-      updateOutput();
     };
   };
 
@@ -214,6 +216,7 @@
     return function(device) {
       var numInputs = (op == null)? 1 :
         Math.max(2, device.deviceDef.numInputs || 2);
+      device.halfPitch = numInputs > 2;
       for (var i = 0; i < numInputs; i += 1) {
         device.addInput();
       }
@@ -230,8 +233,9 @@
         b = out(b);
         outputs[0].setValue( (b == 1)? 1 : null);
       });
-      if (!device.headless) {
-        device.halfPitch = inputs.length > 2;
+      var super_createUI = device.createUI;
+      device.createUI = function() {
+        super_createUI();
         var size = device.getSize();
         var g = $s.graphics(device.$ui);
         g.attr['class'] = 'simcir-basicset-symbol';
@@ -239,7 +243,7 @@
           (size.width - unit) / 2,
           (size.height - unit) / 2,
           unit, unit);
-      }
+      };
     };
   };
 
@@ -364,6 +368,20 @@
     seg.drawPoint(g, on? hiColor : loColor);
   };
 
+  var createSegUI = function(device, seg) {
+    var size = device.getSize();
+    var sw = seg.width;
+    var sh = seg.height;
+    var dw = size.width - unit;
+    var dh = size.height - unit;
+    var scale = (sw / sh > dw / dh)? dw / sw : dh / sh;
+    var tx = (size.width - seg.width * scale) / 2;
+    var ty = (size.height - seg.height * scale) / 2;
+    return $s.createSVGElement('g').
+      attr('transform', 'translate(' + tx + ' ' + ty + ')' +
+          ' scale(' + scale + ') ');
+  };
+
   var createLEDSegFactory = function(seg) {
     return function(device) {
       var hiColor = device.deviceDef.color || defaultLEDColor;
@@ -373,39 +391,33 @@
       for (var i = 0; i < allSegs.length; i += 1) {
         device.addInput();
       }
+
       var super_getSize = device.getSize;
       device.getSize = function() {
         var size = super_getSize();
         return {width: unit * 4, height: size.height};
       };
 
-      var size = device.getSize();
-      var sw = seg.width;
-      var sh = seg.height;
-      var dw = size.width - unit;
-      var dh = size.height - unit;
+      var super_createUI = device.createUI;
+      device.createUI = function() {
+        super_createUI();
 
-      var scale = (sw / sh > dw / dh)? dw / sw : dh / sh;
-      var tx = (size.width - seg.width * scale) / 2;
-      var ty = (size.height - seg.height * scale) / 2;
+        var $seg = createSegUI(device, seg);
+        device.$ui.append($seg);
 
-      var $seg = $s.createSVGElement('g').
-        attr('transform', 'translate(' + tx + ' ' + ty + ')' +
-            ' scale(' + scale + ') ');
-      device.$ui.append($seg);
-
-      var update = function() {
-        var segs = '';
-        for (var i = 0; i < allSegs.length; i += 1) {
-          if (isHot(device.getInputs()[i].getValue() ) ) {
-            segs += allSegs.charAt(i);
+        var update = function() {
+          var segs = '';
+          for (var i = 0; i < allSegs.length; i += 1) {
+            if (isHot(device.getInputs()[i].getValue() ) ) {
+              segs += allSegs.charAt(i);
+            }
           }
-        }
-        $seg.children().remove();
-        drawSeg(seg, $s.graphics($seg), segs, hiColor, loColor, '#000000');
+          $seg.children().remove();
+          drawSeg(seg, $s.graphics($seg), segs, hiColor, loColor, '#000000');
+        };
+        device.$ui.on('inputValueChange', update);
+        update();
       };
-      device.$ui.on('inputValueChange', update);
-      update();
     };
   };
 
@@ -442,40 +454,34 @@
       for (var i = 0; i < 4; i += 1) {
         device.addInput();
       }
+
       var super_getSize = device.getSize;
       device.getSize = function() {
         var size = super_getSize();
         return {width: unit * 4, height: size.height};
       };
 
-      var size = device.getSize();
-      var sw = seg.width;
-      var sh = seg.height;
-      var dw = size.width - unit;
-      var dh = size.height - unit;
-      
-      var scale = (sw / sh > dw / dh)? dw / sw : dh / sh;
-      var tx = (size.width - seg.width * scale) / 2;
-      var ty = (size.height - seg.height * scale) / 2;
+      var super_createUI = device.createUI;
+      device.createUI = function() {
+        super_createUI();
 
-      var $seg = $s.createSVGElement('g').
-        attr('transform', 'translate(' + tx + ' ' + ty + ')' +
-            ' scale(' + scale + ') ');
-      device.$ui.append($seg);
-
-      var update = function() {
-        var value = int = 0;
-        for (var i = 0; i < 4; i += 1) {
-          if (isHot(device.getInputs()[i].getValue() ) ) {
-            value += (1 << i);
+        var $seg = createSegUI(device, seg);
+        device.$ui.append($seg);
+  
+        var update = function() {
+          var value = int = 0;
+          for (var i = 0; i < 4; i += 1) {
+            if (isHot(device.getInputs()[i].getValue() ) ) {
+              value += (1 << i);
+            }
           }
-        }
-        $seg.children().remove();
-        drawSeg(seg, $s.graphics($seg), getPattern(value),
-            hiColor, loColor, '#000000');
+          $seg.children().remove();
+          drawSeg(seg, $s.graphics($seg), getPattern(value),
+              hiColor, loColor, '#000000');
+        };
+        device.$ui.on('inputValueChange', update);
+        update();
       };
-      device.$ui.on('inputValueChange', update);
-      update();
     };
   };
   var createRotaryEncoderFactory = function() {
@@ -498,91 +504,101 @@
       for (var i = 0; i < numOutputs; i += 1) {
         device.addOutput();
       }
+
       var super_getSize = device.getSize;
       device.getSize = function() {
         var size = super_getSize();
         return {width: unit * 4, height: size.height};
       };
-      var size = device.getSize();
 
-      var $knob = $s.createSVGElement('g').
-        attr('class', 'simcir-basicset-knob').
-        append($s.createSVGElement('rect').
-            attr({x:-10,y:-10,width:20,height:20}));
-      var r = Math.min(size.width, size.height) / 4 * 1.5;
-      var g = $s.graphics($knob);
-      g.drawCircle(0, 0, r);
-      g.attr['class'] = 'simcir-basicset-knob-mark';
-      g.moveTo(0, 0);
-      g.lineTo(r, 0);
-      g.closePath();
-      device.$ui.append($knob);
-
-      var _angle = _MIN_ANGLE;
-      var setAngle = function(angle) {
-        _angle = Math.max(_MIN_ANGLE, Math.min(angle, _MAX_ANGLE) );
+      var super_createUI = device.createUI;
+      device.createUI = function() {
+        super_createUI();
+        var size = device.getSize();
+        
+        var $knob = $s.createSVGElement('g').
+          attr('class', 'simcir-basicset-knob').
+          append($s.createSVGElement('rect').
+              attr({x:-10,y:-10,width:20,height:20}));
+        var r = Math.min(size.width, size.height) / 4 * 1.5;
+        var g = $s.graphics($knob);
+        g.drawCircle(0, 0, r);
+        g.attr['class'] = 'simcir-basicset-knob-mark';
+        g.moveTo(0, 0);
+        g.lineTo(r, 0);
+        g.closePath();
+        device.$ui.append($knob);
+  
+        var _angle = _MIN_ANGLE;
+        var setAngle = function(angle) {
+          _angle = Math.max(_MIN_ANGLE, Math.min(angle, _MAX_ANGLE) );
+          update();
+        };
+  
+        var dragPoint = null;
+        var knob_mouseDownHandler = function(event) {
+          event.preventDefault();
+          event.stopPropagation();
+          dragPoint = {x: event.pageX, y: event.pageY};
+          $(document).on('mousemove', knob_mouseMoveHandler);
+          $(document).on('mouseup', knob_mouseUpHandler);
+        };
+        var knob_mouseMoveHandler = function(event) {
+          var off = $knob.parents('svg').offset();
+          var pos = $s.offset($knob);
+          var cx = off.left + pos.x;
+          var cy = off.top + pos.y;
+          var dx = event.pageX - cx;
+          var dy = event.pageY - cy;
+          if (dx == 0 && dy == 0) return;
+          setAngle(thetaToAngle(Math.atan2(dy, dx) ) );
+        };
+        var knob_mouseUpHandler = function(event) {
+          $(document).off('mousemove', knob_mouseMoveHandler);
+          $(document).off('mouseup', knob_mouseUpHandler);
+        };
+        device.$ui.on('addDevice', function() {
+          $s.enableEvents($knob, true);
+          $knob.on('mousedown', knob_mouseDownHandler);
+        });
+        device.$ui.on('removeDevice', function() {
+          $s.enableEvents($knob, false);
+          $knob.off('mousedown', knob_mouseDownHandler);
+        });
+  
+        var update = function() {
+          $s.transform($knob, size.width / 2,
+              size.height / 2, _angle + 90);
+          var max = 1 << numOutputs;
+          var value = Math.min( ( (_angle - _MIN_ANGLE) /
+              (_MAX_ANGLE - _MIN_ANGLE) * max), max - 1);
+          for (var i = 0; i < numOutputs; i += 1) {
+            device.getOutputs()[i].setValue( (value & (1 << i) )?
+                device.getInputs()[0].getValue() : null);
+          }
+        };
+        device.$ui.on('inputValueChange', update);
         update();
       };
-
-      var dragPoint = null;
-      var knob_mouseDownHandler = function(event) {
-        event.preventDefault();
-        event.stopPropagation();
-        dragPoint = {x: event.pageX, y: event.pageY};
-        $(document).on('mousemove', knob_mouseMoveHandler);
-        $(document).on('mouseup', knob_mouseUpHandler);
-      };
-      var knob_mouseMoveHandler = function(event) {
-        var off = $knob.parents('svg').offset();
-        var pos = $s.offset($knob);
-        var cx = off.left + pos.x;
-        var cy = off.top + pos.y;
-        var dx = event.pageX - cx;
-        var dy = event.pageY - cy;
-        if (dx == 0 && dy == 0) return;
-        setAngle(thetaToAngle(Math.atan2(dy, dx) ) );
-      };
-      var knob_mouseUpHandler = function(event) {
-        $(document).off('mousemove', knob_mouseMoveHandler);
-        $(document).off('mouseup', knob_mouseUpHandler);
-      };
-      device.$ui.on('addDevice', function() {
-        $s.enableEvents($knob, true);
-        $knob.on('mousedown', knob_mouseDownHandler);
-      });
-      device.$ui.on('removeDevice', function() {
-        $s.enableEvents($knob, false);
-        $knob.off('mousedown', knob_mouseDownHandler);
-      });
-
-      var update = function() {
-        $s.transform($knob, size.width / 2,
-            size.height / 2, _angle + 90);
-        var max = 1 << numOutputs;
-        var value = Math.min( ( (_angle - _MIN_ANGLE) /
-            (_MAX_ANGLE - _MIN_ANGLE) * max), max - 1);
-        for (var i = 0; i < numOutputs; i += 1) {
-          device.getOutputs()[i].setValue( (value & (1 << i) )?
-              device.getInputs()[0].getValue() : null);
-        }
-      };
-      device.$ui.on('inputValueChange', update);
-      update();
     };
   };
 
   // register direct current source
   $s.registerDevice('DC', function(device) {
     device.addOutput().setValue(onValue);
-    if (!device.headless) {
+    var super_createUI = device.createUI;
+    device.createUI = function() {
+      super_createUI();
       $s.addClass(device.$ui, 'simcir-basicset-osc');
-    }
+    };
   });
 
   // register simple LED
   $s.registerDevice('LED', function(device) {
     var in1 = device.addInput();
-    if (!device.headless) {
+    var super_createUI = device.createUI;
+    device.createUI = function() {
+      super_createUI();
       var hiColor = device.deviceDef.color || defaultLEDColor;
       var loColor = multiplyColor(hiColor, 0.25);
       var bLoColor = multiplyColor(hiColor, 0.2);
@@ -602,7 +618,7 @@
         $ledbase.attr('fill', isHot(in1.getValue() )? bHiColor : bLoColor);
         $led.attr('fill', isHot(in1.getValue() )? hiColor : loColor);
       });
-    }
+    };
   });
 
   // register switches
@@ -639,9 +655,11 @@
         timerId = null;
       }
     });
-    if (!device.headless) {
+    var super_createUI = device.createUI;
+    device.createUI = function() {
+      super_createUI();
       $s.addClass(device.$ui, 'simcir-basicset-dc');
-    }
+    };
   });
 
   // register LED seg

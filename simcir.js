@@ -370,7 +370,7 @@ var simcir = function($) {
       factory(controller($dev) );
     }
     if (!headless) {
-      controller($dev).doLayout();
+      controller($dev).createUI();
     }
     return $dev;
   };
@@ -399,33 +399,6 @@ var simcir = function($) {
       outputs.push(node);
       return node;
     };
-    var getSize = function() {
-      var nodes = Math.max(device.getInputs().length,
-          device.getOutputs().length);
-      return { width: unit * 2,
-        height: unit * Math.max(2, device.halfPitch?
-            (nodes + 1) / 2 : nodes)};
-    };
-    var doLayout = function() {
-
-      var size = device.getSize();
-      var w = size.width;
-      var h = size.height;
-
-      $rect.attr({x: 0, y: 0, width: w, height: h});
-
-      var pitch = device.halfPitch? unit / 2 : unit;
-      var layoutNodes = function(nodes, x) {
-        var offset = (h - pitch * (nodes.length - 1) ) / 2;
-        $.each(nodes, function(i, node) {
-          transform(node.$ui, x, pitch * i + offset);
-        });
-      };
-      layoutNodes(getInputs(), 0);
-      layoutNodes(getOutputs(), w);
-
-      $label.attr({x: w / 2, y: h + fontSize});
-    };
     var getInputs = function() {
       return inputs;
     };
@@ -449,11 +422,7 @@ var simcir = function($) {
     var selected = false;
     var setSelected = function(value) {
       selected = value;
-      if (selected) {
-        addClass($rect, 'simcir-device-selected');
-      } else {
-        removeClass($rect, 'simcir-device-selected');
-      }
+      device.$ui.trigger('deviceSelect');
     };
     var isSelected = function() {
       return selected;
@@ -473,12 +442,52 @@ var simcir = function($) {
       return label;
     };
 
-    if (!device.headless) {
+    var getSize = function() {
+      var nodes = Math.max(device.getInputs().length,
+          device.getOutputs().length);
+      return { width: unit * 2,
+        height: unit * Math.max(2, device.halfPitch?
+            (nodes + 1) / 2 : nodes)};
+    };
+
+    var layoutUI = function() {
+
+      var size = device.getSize();
+      var w = size.width;
+      var h = size.height;
+
+      device.$ui.children('.simcir-device-body').
+        attr({x: 0, y: 0, width: w, height: h});
+
+      var pitch = device.halfPitch? unit / 2 : unit;
+      var layoutNodes = function(nodes, x) {
+        var offset = (h - pitch * (nodes.length - 1) ) / 2;
+        $.each(nodes, function(i, node) {
+          transform(node.$ui, x, pitch * i + offset);
+        });
+      };
+      layoutNodes(getInputs(), 0);
+      layoutNodes(getOutputs(), w);
+
+      device.$ui.children('.simcir-device-label').
+        attr({x: w / 2, y: h + fontSize});
+    };
+
+    var createUI = function() {
 
       device.$ui.attr('class', 'simcir-device');
+      device.$ui.on('deviceSelect', function() {
+        if (selected) {
+          addClass($(this), 'simcir-device-selected');
+        } else {
+          removeClass($(this), 'simcir-device-selected');
+        }
+      });
 
-      var $rect = createSVGElement('rect').attr('rx', 2).attr('ry', 2);
-      device.$ui.append($rect);
+      var $body = createSVGElement('rect').
+        attr('class', 'simcir-device-body').
+        attr('rx', 2).attr('ry', 2);
+      device.$ui.prepend($body);
 
       var $label = createLabel(label).
         attr('class', 'simcir-device-label').
@@ -489,18 +498,18 @@ var simcir = function($) {
         event.stopPropagation();
         var title = 'Enter device name ';
         var $labelEditor = $('<input type="text"/>').
-        addClass('simcir-label-editor').
-        val($label.text() ).
-        on('keydown', function(event) {
-          if (event.keyCode == 13) {
-            // ENTER
-            setLabel($(this).val() );
-            $dlg.remove();
-          } else if (event.keyCode == 27) {
-            // ESC
-            $dlg.remove();
-          }
-        } );
+          addClass('simcir-label-editor').
+          val($label.text() ).
+          on('keydown', function(event) {
+            if (event.keyCode == 13) {
+              // ENTER
+              setLabel($(this).val() );
+              $dlg.remove();
+            } else if (event.keyCode == 27) {
+              // ESC
+              $dlg.remove();
+            }
+          } );
         var $placeHolder = $('<div></div>').
           append($labelEditor);
         var $dlg = showDialog(title, $placeHolder);
@@ -513,7 +522,10 @@ var simcir = function($) {
         $label.off('dblclick', label_dblClickHandler);
       } );
       device.$ui.append($label);
-    }
+
+      layoutUI();
+
+    };
 
     return $.extend(device, {
       addInput: addInput,
@@ -524,9 +536,10 @@ var simcir = function($) {
       setSelected: setSelected,
       isSelected: isSelected,
       getLabel: getLabel,
+      halfPitch: false,
       getSize: getSize,
-      doLayout: doLayout,
-      halfPitch: false
+      createUI: createUI,
+      layoutUI: layoutUI
     });
   };
 
@@ -1239,7 +1252,9 @@ var simcir = function($) {
       device.$ui.on('inputValueChange', function() {
         out1.setValue(in1.getValue() );
       });
-      if (!device.headless) {
+      var super_createUI = device.createUI;
+      device.createUI = function() {
+        super_createUI();
         var size = device.getSize();
         var cx = size.width / 2;
         var cy = size.height / 2;
@@ -1249,7 +1264,7 @@ var simcir = function($) {
         device.$ui.append(createSVGElement('circle').
           attr({cx: cx, cy: cy, r: unit / 4}).
           attr('class', 'simcir-port-hole') );
-      }
+      };
     };
   };
   // register built-in devices
