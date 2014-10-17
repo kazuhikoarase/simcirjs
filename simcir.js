@@ -895,10 +895,6 @@ var simcir = function($) {
     $workspace.append($connectorPane);
     $workspace.append($temporaryPane);
 
-    //-------------------------------------------
-    // APIs
-    //
-
     var addDevice = function($dev) {
       $devicePane.append($dev);
       $dev.trigger('addDevice');
@@ -1267,11 +1263,12 @@ var simcir = function($) {
           attr('class', 'simcir-port-hole') );
       };
       device.doc = {
-        description: 'With this device...',
+        description: 'aaa',
         params: [
-          {name: 'aaa', description: 'bbb'},
-          {name: 'ccc', description: 'ddd'}
-        ]
+          {name: 'numInputs', type: 'number', description: 'number of inputs'},
+          {name: 'ccc', type: 'string', description: 'ddd'}
+        ],
+        code: '{type:"ttt"}'
       };
     };
   };
@@ -1310,18 +1307,59 @@ var simcir = function($) {
   };
 
   var setupSimcirDoc = function($placeHolder) {
-    var $table = $('<table><tbody></tbody></table>');
-    var $tbody = $table.children('tbody');
+    var $table = $('<table><tbody></tbody></table>').
+      addClass('simcir-doc-table');
     $.each(defaultToolbox, function(i, deviceDef) {
       var $dev = createDevice(deviceDef);
       var device = controller($dev);
+      if (!device.doc) {
+        return;
+      }
+      var doc = $.extend({description: '', params: []},device.doc);
       var size = device.getSize();
+
       var $tr = $('<tr></tr>');
-      $tr.append($('<td></td>').text(deviceDef.type) );
-      $tr.append($('<td></td>').text(size.width + 'x' +size.height) );
-      $tr.append($('<td></td>').text(device.doc? device.doc.description : '') );
-      $tbody.append($tr);
+      var gap = 8;
+      var $view = createSVG(size.width + gap * 2,
+          size.height + gap * 2 + fontSize);
+      var $dev = createDevice(deviceDef);
+      transform($dev, gap, gap);
+
+      $view.append($dev);
+      $tr.append($('<td></td>').append($view) );
+      var $desc = $('<td></td>').
+          append($('<span></span>').
+          text(doc.description) );
+      $tr.append($desc);
+
+      if (doc.params.length > 0) {
+        $desc.append($('<div>Params</div>').addClass('simcir-doc-title') );
+        var $paramsTable = $('<table><tbody></tbody></table>').
+          addClass('simcir-doc-params-table');
+        $paramsTable.children('tbody').append($('<tr></tr>').
+            append($('<th>Name</th>') ).
+            append($('<th>Type</th>') ).
+            append($('<th>Description</th>') ) );
+
+        $.each(doc.params, function(i, param) {
+          $paramsTable.children('tbody').append($('<tr></tr>').
+          append($('<td></td>').text(param.name) ).
+          append($('<td></td>').text(param.type) ).
+          append($('<td></td>').text(param.description) ) );
+        });
+        $desc.append($paramsTable);
+      }
+
+      if (doc.code) {
+        $desc.append($('<div>Code</div>').addClass('simcir-doc-title') );
+        $desc.append($('<div></div>').
+            addClass('simcir-doc-code').text(doc.code) );
+      }
+
+      $table.children('tbody').append($tr);
     });
+
+
     $placeHolder.append($table);
   };
 

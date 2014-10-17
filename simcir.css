@@ -151,12 +151,51 @@
   height: 0;
 }
 
-.simcir-doc TABLE {
+/* simcir doc */
+
+TABLE.simcir-doc-table {
   border-collapse: collapse;
 }
 
-.simcir-doc TABLE, .simcir-doc TH, .simcir-doc TD {
+TABLE.simcir-doc-table,
+TABLE.simcir-doc-table TH,
+TABLE.simcir-doc-table TD {
   border-width: 1px;
   border-style: solid;
   vorder-color: $cccccc;
+}
+
+TABLE.simcir-doc-table TH,
+TABLE.simcir-doc-table TD {
+  padding: 16px;
+}
+
+TABLE.simcir-doc-params-table {
+  border-collapse: collapse;
+}
+
+TABLE.simcir-doc-params-table,
+TABLE.simcir-doc-params-table TH,
+TABLE.simcir-doc-params-table TD {
+  border-width: 1px;
+  border-style: solid;
+  vorder-color: $cccccc;
+}
+
+TABLE.simcir-doc-params-table TH,
+TABLE.simcir-doc-params-table TD {
+  padding: 2px;
+}
+
+.simcir-doc-title {
+  font-weight: bold;
+  margin: 16px 0px 0px 0px;
+}
+
+.simcir-doc-code {
+  padding: 8px;
+  -webkit-border-radius: 4px;
+     -moz-border-radius: 4px;
+          border-radius: 4px;
+  background-color: #f0f0f0;
 }
