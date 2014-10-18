@@ -1342,7 +1342,8 @@ var simcir = function($) {
           $paramsTable.children('tbody').append($('<tr></tr>').
           append($('<td></td>').text(param.name) ).
           append($('<td></td>').text(param.type) ).
-          append($('<td></td>').text(param.defaultValue) ).
+          append($('<td></td>').css('text-align', 'center').
+              text(param.defaultValue) ).
           append($('<td></td>').text(param.description) ) );
         });
         $desc.append($paramsTable);
