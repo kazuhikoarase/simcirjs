@@ -1262,14 +1262,6 @@ var simcir = function($) {
           attr({cx: cx, cy: cy, r: unit / 4}).
           attr('class', 'simcir-port-hole') );
       };
-      device.doc = {
-        description: 'aaa',
-        params: [
-          {name: 'numInputs', type: 'number', description: 'number of inputs'},
-          {name: 'ccc', type: 'string', description: 'ddd'}
-        ],
-        code: '{type:"ttt"}'
-      };
     };
   };
   // register built-in devices
@@ -1319,18 +1311,22 @@ var simcir = function($) {
       var size = device.getSize();
 
       var $tr = $('<tr></tr>');
-      var gap = 8;
-      var $view = createSVG(size.width + gap * 2,
-          size.height + gap * 2 + fontSize);
+      var hgap = 32;
+      var vgap = 8;
+      var $view = createSVG(size.width + hgap * 2,
+          size.height + vgap * 2 + fontSize);
       var $dev = createDevice(deviceDef);
-      transform($dev, gap, gap);
+      transform($dev, hgap, vgap);
 
       $view.append($dev);
-      $tr.append($('<td></td>').append($view) );
-      var $desc = $('<td></td>').
-          append($('<span></span>').
-          text(doc.description) );
+      $tr.append($('<td></td>').css('text-align', 'center').append($view) );
+      var $desc = $('<td></td>');
       $tr.append($desc);
+
+      if (doc.description) {
+        $desc.append($('<span></span>').
+            text(doc.description) );
+      }
 
       if (doc.params.length > 0) {
         $desc.append($('<div>Params</div>').addClass('simcir-doc-title') );
@@ -1339,12 +1335,14 @@ var simcir = function($) {
         $paramsTable.children('tbody').append($('<tr></tr>').
             append($('<th>Name</th>') ).
             append($('<th>Type</th>') ).
+            append($('<th>Default</th>') ).
             append($('<th>Description</th>') ) );
 
         $.each(doc.params, function(i, param) {
           $paramsTable.children('tbody').append($('<tr></tr>').
           append($('<td></td>').text(param.name) ).
           append($('<td></td>').text(param.type) ).
+          append($('<td></td>').text(param.defaultValue) ).
           append($('<td></td>').text(param.description) ) );
         });
         $desc.append($paramsTable);

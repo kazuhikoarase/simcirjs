@@ -243,6 +243,16 @@
           (size.width - unit) / 2,
           (size.height - unit) / 2,
           unit, unit);
+        if (op != null) {
+          device.doc = {
+            params: [
+              {name: 'numInputs', type: 'number',
+                defaultValue: 2,
+                description: 'number of inputs.'}
+            ],
+            code: '{"type":"' + device.deviceDef.type + '","numInputs":2}'
+          };
+        }
       };
     };
   };
@@ -417,6 +427,13 @@
         };
         device.$ui.on('inputValueChange', update);
         update();
+        device.doc = {
+          params: [
+            {name: 'color', type: 'string', defaultValue: '#ff0000',
+              description: 'color in hexadecimal.'}
+          ],
+          code: '{"type":"' + device.deviceDef.type + '","color":"#ff0000"}'
+        };
       };
     };
   };
@@ -481,6 +498,13 @@
         };
         device.$ui.on('inputValueChange', update);
         update();
+        device.doc = {
+          params: [
+            {name: 'color', type: 'string', defaultValue: '#ff0000',
+              description: 'color in hexadecimal.'}
+          ],
+          code: '{"type":"' + device.deviceDef.type + '","color":"#ff0000"}'
+        };
       };
     };
   };
@@ -579,6 +603,13 @@
         };
         device.$ui.on('inputValueChange', update);
         update();
+        device.doc = {
+          params: [
+            {name: 'numOutputs', type: 'number', defaultValue: 4,
+              description: 'number of outputs.'}
+          ],
+          code: '{"type":"' + device.deviceDef.type + '","numOutputs":4}'
+        };
       };
     };
   };
@@ -618,6 +649,13 @@
         $ledbase.attr('fill', isHot(in1.getValue() )? bHiColor : bLoColor);
         $led.attr('fill', isHot(in1.getValue() )? hiColor : loColor);
       });
+      device.doc = {
+        params: [
+          {name: 'color', type: 'string', defaultValue: '#ff0000',
+            description: 'color in hexadecimal.'}
+        ],
+        code: '{"type":"' + device.deviceDef.type + '","color":"#ff0000"}'
+      };
     };
   });
 
@@ -659,6 +697,13 @@
     device.createUI = function() {
       super_createUI();
       $s.addClass(device.$ui, 'simcir-basicset-dc');
+      device.doc = {
+        params: [
+          {name: 'freq', type: 'number', defaultValue: '10',
+            description: 'frequency of oscillator.'}
+        ],
+        code: '{"type":"' + device.deviceDef.type + '","freq":10}'
+      };
     };
   });
 
@@ -687,6 +732,17 @@
         device.getOutputs()[i].setValue(extractValue(busValue, i) );
       }
     });
+    var super_createUI = device.createUI;
+    device.createUI = function() {
+      super_createUI();
+      device.doc = {
+        params: [
+          {name: 'numOutputs', type: 'number', defaultValue: 8,
+            description: 'number of outputs.'}
+        ],
+        code: '{"type":"' + device.deviceDef.type + '","numOutputs":8}'
+      };
+    };
   });
 
   $s.registerDevice('BusOut', function(device) {
@@ -709,6 +765,17 @@
       device.getOutputs()[0].setValue(
           (hotCount > 0)? busValue : null);
     });
+    var super_createUI = device.createUI;
+    device.createUI = function() {
+      super_createUI();
+      device.doc = {
+        params: [
+          {name: 'numInputs', type: 'number', defaultValue: 8,
+            description: 'number of inputs.'}
+        ],
+        code: '{"type":"' + device.deviceDef.type + '","numInputs":8}'
+      };
+    };
   });
 
 }(jQuery, simcir);
