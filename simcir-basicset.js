@@ -199,11 +199,11 @@
           updateOutput();
           $(document).off('mouseup', button_mouseUpHandler);
         };
-        device.$ui.on('addDevice', function() {
+        device.$ui.on('deviceAdd', function() {
           $s.enableEvents($button, true);
           $button.on('mousedown', button_mouseDownHandler);
         });
-        device.$ui.on('removeDevice', function() {
+        device.$ui.on('deviceRemove', function() {
           $s.enableEvents($button, false);
           $button.off('mousedown', button_mouseDownHandler);
         });
@@ -581,11 +581,11 @@
           $(document).off('mousemove', knob_mouseMoveHandler);
           $(document).off('mouseup', knob_mouseUpHandler);
         };
-        device.$ui.on('addDevice', function() {
+        device.$ui.on('deviceAdd', function() {
           $s.enableEvents($knob, true);
           $knob.on('mousedown', knob_mouseDownHandler);
         });
-        device.$ui.on('removeDevice', function() {
+        device.$ui.on('deviceRemove', function() {
           $s.enableEvents($knob, false);
           $knob.off('mousedown', knob_mouseDownHandler);
         });
@@ -681,13 +681,13 @@
     var out1 = device.addOutput();
     var timerId = null;
     var on = false;
-    device.$ui.on('addDevice', function() {
+    device.$ui.on('deviceAdd', function() {
       timerId = window.setInterval(function() {
         out1.setValue(on? onValue : offValue);
         on = !on;
       }, delay);
     });
-    device.$ui.on('removeDevice', function() {
+    device.$ui.on('deviceRemove', function() {
       if (timerId != null) {
         window.clearInterval(timerId);
         timerId = null;

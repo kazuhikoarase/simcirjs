@@ -516,10 +516,10 @@ var simcir = function($) {
         var $dlg = showDialog(title, $placeHolder);
         $labelEditor.focus();
       };
-      device.$ui.on('addDevice', function() {
+      device.$ui.on('deviceAdd', function() {
         $label.on('dblclick', label_dblClickHandler);
       } );
-      device.$ui.on('removeDevice', function() {
+      device.$ui.on('deviceRemove', function() {
         $label.off('dblclick', label_dblClickHandler);
       } );
       device.$ui.append($label);
@@ -897,11 +897,11 @@ var simcir = function($) {
 
     var addDevice = function($dev) {
       $devicePane.append($dev);
-      $dev.trigger('addDevice');
+      $dev.trigger('deviceAdd');
     };
 
     var removeDevice = function($dev) {
-      $dev.trigger('removeDevice');
+      $dev.trigger('deviceRemove');
       // before remove, disconnect all
       controller($dev).disconnectAll();
       $dev.remove();
