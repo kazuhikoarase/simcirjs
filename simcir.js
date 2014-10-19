@@ -1287,13 +1287,15 @@ var simcir = function($) {
       showData = !showData;
     };
     $placeHolder.text('');
-    $placeHolder.append($workspace);
-    $placeHolder.append($dataArea);
-    $placeHolder.on('click', function(event) {
-      if (event.ctrlKey || event.metaKey) {
-        toggle();
-      }
-    });
+    $placeHolder.append($('<div></div>').
+        addClass('simcir-body').
+        append($workspace).
+        append($dataArea).
+        on('click', function(event) {
+          if (event.ctrlKey || event.metaKey) {
+            toggle();
+          }
+        }));
     toggle();
     return $workspace;
   };
