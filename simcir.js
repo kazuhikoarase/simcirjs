@@ -1339,14 +1339,25 @@ var simcir = function($) {
             append($('<th>Type</th>') ).
             append($('<th>Default</th>') ).
             append($('<th>Description</th>') ) );
+        $paramsTable.children('tbody').append($('<tr></tr>').
+            append($('<td>type</td>') ).
+            append($('<td>string</td>') ).
+            append($('<td>-</td>').
+                css('text-align', 'center') ).
+            append($('<td>type of device.</td>') ) );
+        $paramsTable.children('tbody').append($('<tr></tr>').
+            append($('<td>label</td>') ).
+            append($('<td>string</td>') ).
+            append($('<td>same with type</td>').css('text-align', 'center') ).
+            append($('<td>label for device.</td>') ) );
 
         $.each(doc.params, function(i, param) {
           $paramsTable.children('tbody').append($('<tr></tr>').
-          append($('<td></td>').text(param.name) ).
-          append($('<td></td>').text(param.type) ).
-          append($('<td></td>').css('text-align', 'center').
-              text(param.defaultValue) ).
-          append($('<td></td>').text(param.description) ) );
+            append($('<td></td>').text(param.name) ).
+            append($('<td></td>').text(param.type) ).
+            append($('<td></td>').css('text-align', 'center').
+                text(param.defaultValue) ).
+            append($('<td></td>').text(param.description) ) );
         });
         $desc.append($paramsTable);
       }
