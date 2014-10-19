@@ -39,10 +39,6 @@
   // red
   var defaultLEDColor = '#ff0000';
 
-  var quote = function(v) {
-    return '"' + v + '"';
-  };
-
   var multiplyColor = function() {
     var HEX = '0123456789abcdef';
     var toIColor = function(sColor) {
@@ -434,11 +430,11 @@
         device.doc = {
           params: [
             {name: 'color', type: 'string',
-              defaultValue: quote(defaultLEDColor),
+              defaultValue: defaultLEDColor,
               description: 'color in hexadecimal.'}
           ],
           code: '{"type":"' + device.deviceDef.type +
-          '","color":' + quote(defaultLEDColor)+ '}'
+          '","color":"' + defaultLEDColor + '"}'
         };
       };
     };
@@ -507,11 +503,11 @@
         device.doc = {
           params: [
             {name: 'color', type: 'string',
-              defaultValue: quote(defaultLEDColor),
+              defaultValue: defaultLEDColor,
               description: 'color in hexadecimal.'}
           ],
           code: '{"type":"' + device.deviceDef.type +
-          '","color":' + quote(defaultLEDColor) + '}'
+          '","color":"' + defaultLEDColor + '"}'
         };
       };
     };
@@ -660,11 +656,11 @@
       device.doc = {
         params: [
           {name: 'color', type: 'string',
-            defaultValue: quote(defaultLEDColor),
+            defaultValue: defaultLEDColor,
             description: 'color in hexadecimal.'}
         ],
         code: '{"type":"' + device.deviceDef.type +
-        '","color":' + quote(defaultLEDColor) + '}'
+        '","color":"' + defaultLEDColor + '"}'
       };
     };
   });
