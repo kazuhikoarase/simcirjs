@@ -700,7 +700,7 @@
       device.doc = {
         params: [
           {name: 'freq', type: 'number', defaultValue: '10',
-            description: 'frequency of oscillator.'}
+            description: 'frequency of an oscillator.'}
         ],
         code: '{"type":"' + device.deviceDef.type + '","freq":10}'
       };

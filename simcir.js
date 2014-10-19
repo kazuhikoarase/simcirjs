@@ -437,7 +437,7 @@ var simcir = function($) {
     var setLabel = function(value) {
       value = value.replace(/^\s+|\s+$/g, '');
       label = value || defaultLabel;
-      $label.text(label);
+      device.$ui.trigger('deviceLabelChange');
     };
     var getLabel = function() {
       return label;
@@ -493,6 +493,10 @@ var simcir = function($) {
       var $label = createLabel(label).
         attr('class', 'simcir-device-label').
         attr('text-anchor', 'middle');
+      device.$ui.on('deviceLabelChange', function() {
+        $label.text(getLabel() );
+      });
+
       var label_dblClickHandler = function() {
         // open library,
         event.preventDefault();
@@ -1344,12 +1348,12 @@ var simcir = function($) {
             append($('<td>string</td>') ).
             append($('<td>-</td>').
                 css('text-align', 'center') ).
-            append($('<td>type of device.</td>') ) );
+            append($('<td>"' + deviceDef.type + '"</td>') ) );
         $paramsTable.children('tbody').append($('<tr></tr>').
             append($('<td>label</td>') ).
             append($('<td>string</td>') ).
             append($('<td>same with type</td>').css('text-align', 'center') ).
-            append($('<td>label for device.</td>') ) );
+            append($('<td>label for a device.</td>') ) );
 
         $.each(doc.params, function(i, param) {
           $paramsTable.children('tbody').append($('<tr></tr>').
