@@ -620,12 +620,18 @@
 
   // register direct current source
   $s.registerDevice('DC', function(device) {
-    device.addOutput().setValue(onValue);
+    device.addOutput();
     var super_createUI = device.createUI;
     device.createUI = function() {
       super_createUI();
       $s.addClass(device.$ui, 'simcir-basicset-osc');
     };
+    device.$ui.on('deviceAdd', function() {
+      device.getOutputs()[0].setValue(onValue);
+    });
+    device.$ui.on('deviceRemove', function() {
+      device.getOutputs()[0].setValue(null);
+    });
   });
 
   // register simple LED
