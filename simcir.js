@@ -948,7 +948,7 @@ var simcir = function($) {
       controller($scrollbar).setValues(0, 0, y, workspaceHeight);
     };
 
-    var text = function() {
+    var getData = function() {
 
       // renumber all id
       var devIdCount = 0;
@@ -992,6 +992,18 @@ var simcir = function($) {
         deviceDef.label = device.getLabel();
         devices.push(deviceDef);
       });
+      return {
+        width: data.width,
+        height: data.height,
+        showToolbox: data.showToolbox,
+        toolbox: toolbox,
+        devices: devices,
+        connectors: connectors
+      };
+    };
+    var getText = function() {
+
+      var data = getData();
 
       var buf = '';
       var print = function(s) {
@@ -1007,19 +1019,18 @@ var simcir = function($) {
               (i + 1 < array.length? ',' : '') );
         });
       };
-
       println('{');
       println('  "width":' + data.width + ',');
       println('  "height":' + data.height + ',');
       println('  "showToolbox":' + data.showToolbox + ',');
       println('  "toolbox":[');
-      printArray(toolbox);
+      printArray(data.toolbox);
       println('  ],');
       println('  "devices":[');
-      printArray(devices);
+      printArray(data.devices);
       println('  ],');
       println('  "connectors":[');
-      printArray(connectors);
+      printArray(data.connectors);
       println('  ]');
       print('}');
       return buf;
@@ -1240,7 +1251,8 @@ var simcir = function($) {
     updateConnectors();
 
     controller($workspace, {
-      text: text
+      data: getData,
+      text: getText
     });
 
     return $workspace;
@@ -1272,10 +1284,8 @@ var simcir = function($) {
   registerDevice('In', createPortFactory('in') );
   registerDevice('Out', createPortFactory('out') );
 
-  var setupSimcir = function($placeHolder) {
-    var text = $placeHolder.text().replace(/^\s+|\s+$/g, '');
-    var $workspace = simcir.createWorkspace(
-        JSON.parse(text || '{}') );
+  var setupSimcir = function($placeHolder, data) {
+    var $workspace = simcir.createWorkspace(data);
     var $dataArea = $('<textarea></textarea>').
       addClass('simcir-json-data-area').
       attr('readonly', 'readonly').
@@ -1301,7 +1311,7 @@ var simcir = function($) {
           }
         }));
     toggle();
-    return $workspace;
+    return $placeHolder;
   };
 
   var setupSimcirDoc = function($placeHolder) {
@@ -1375,13 +1385,14 @@ var simcir = function($) {
       $table.children('tbody').append($tr);
     });
 
-
     $placeHolder.append($table);
   };
 
   $(function() {
     $('.simcir').each(function() {
-      setupSimcir($(this) );
+      $placeHolder = $(this);
+      var text = $placeHolder.text().replace(/^\s+|\s+$/g, '');
+      setupSimcir($placeHolder, JSON.parse(text || '{}') );
     });
   });
 
