@@ -725,12 +725,8 @@ var simcir = function($) {
       };
       device.$ui.on('dblclick', function(event) {
         // open library,
-        var title = device.deviceDef.label || device.deviceDef.type;
-        var $placeHolder = $('<div></div>').
-          addClass('simcir').
-          text(JSON.stringify(data) );
-        setupSimcir($placeHolder);
-        showDialog(title, $placeHolder);
+        showDialog(device.deviceDef.label || device.deviceDef.type,
+            setupSimcir($('<div></div>'), data) );
       });
     };
   };
