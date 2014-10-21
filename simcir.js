@@ -574,10 +574,9 @@ var simcir = function($) {
       var devId = RegExp.$1;
       var type = RegExp.$2;
       var index = +RegExp.$3;
-      var node = (type == 'in')?
+      return (type == 'in')?
         controller($devMap[devId]).getInputs()[index] :
         controller($devMap[devId]).getOutputs()[index];
-      return node.$ui;
     };
     $.each(data.devices, function(i, deviceDef) {
       var $dev = createDevice(deviceDef, headless);
@@ -586,7 +585,11 @@ var simcir = function($) {
       $devMap[deviceDef.id] = $dev;
     });
     $.each(data.connectors, function(i, conn) {
-      connect(getNode(conn.from), getNode(conn.to) );
+      var nodeFrom = getNode(conn.from);
+      var nodeTo = getNode(conn.to);
+      if (nodeFrom && nodeTo) {
+        connect(nodeFrom.$ui, nodeTo.$ui);
+      }
     });
     return $devices;
   };
@@ -1289,11 +1292,11 @@ var simcir = function($) {
       css('height', $workspace.attr('height') + 'px');
     var showData = false;
     var toggle = function() {
-      if (showData) {
-        $dataArea.val(controller($workspace).text() );
-      }
       $workspace.css('display', !showData? 'inline' : 'none');
       $dataArea.css('display', showData? 'inline' : 'none');
+      if (showData) {
+        $dataArea.val(controller($workspace).text() ).focus();
+      }
       showData = !showData;
     };
     $placeHolder.text('');

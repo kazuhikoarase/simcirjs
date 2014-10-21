@@ -13,6 +13,7 @@
 //  RS-FF
 //  JK-FF
 //  T-FF
+//  D-FF
 //  8bitCounter
 //  HalfAdder
 //  FullAdder
@@ -138,6 +139,55 @@ simcir.registerDevice('T-FF',
 }
 );
 
+simcir.registerDevice('D-FF',
+{
+  "width":540,
+  "height":200,
+  "showToolbox":false,
+  "toolbox":[
+  ],
+  "devices":[
+    {"type":"In","id":"dev0","x":128,"y":24,"label":"D"},
+    {"type":"In","id":"dev1","x":168,"y":128,"label":"CLK"},
+    {"type":"NOT","id":"dev2","x":176,"y":64,"label":"NOT"},
+    {"type":"NAND","id":"dev3","x":224,"y":32,"label":"NAND"},
+    {"type":"NAND","id":"dev4","x":224,"y":96,"label":"NAND"},
+    {"type":"RS-FF","id":"dev5","x":272,"y":64,"label":"RS-FF"},
+    {"type":"NOT","id":"dev6","x":296,"y":128,"label":"NOT"},
+    {"type":"NAND","id":"dev7","x":352,"y":32,"label":"NAND"},
+    {"type":"NAND","id":"dev8","x":352,"y":96,"label":"NAND"},
+    {"type":"RS-FF","id":"dev9","x":400,"y":64,"label":"RS-FF"},
+    {"type":"Out","id":"dev10","x":480,"y":32,"label":"Q"},
+    {"type":"Out","id":"dev11","x":480,"y":96,"label":"~Q"},
+    {"type":"Toggle","id":"dev12","x":80,"y":24,"label":"Toggle"},
+    {"type":"PushOn","id":"dev13","x":80,"y":128,"label":"PushOn"},
+    {"type":"DC","id":"dev14","x":32,"y":72,"label":"DC"}
+  ],
+  "connectors":[
+    {"from":"dev0.in0","to":"dev12.out0"},
+    {"from":"dev1.in0","to":"dev13.out0"},
+    {"from":"dev2.in0","to":"dev0.out0"},
+    {"from":"dev3.in0","to":"dev0.out0"},
+    {"from":"dev3.in1","to":"dev1.out0"},
+    {"from":"dev4.in0","to":"dev1.out0"},
+    {"from":"dev4.in1","to":"dev2.out0"},
+    {"from":"dev5.in0","to":"dev3.out0"},
+    {"from":"dev5.in1","to":"dev4.out0"},
+    {"from":"dev6.in0","to":"dev1.out0"},
+    {"from":"dev7.in0","to":"dev5.out0"},
+    {"from":"dev7.in1","to":"dev6.out0"},
+    {"from":"dev8.in0","to":"dev6.out0"},
+    {"from":"dev8.in1","to":"dev5.out1"},
+    {"from":"dev9.in0","to":"dev7.out0"},
+    {"from":"dev9.in1","to":"dev8.out0"},
+    {"from":"dev10.in0","to":"dev9.out0"},
+    {"from":"dev11.in0","to":"dev9.out1"},
+    {"from":"dev12.in0","to":"dev14.out0"},
+    {"from":"dev13.in0","to":"dev14.out0"}
+  ]
+}
+);
+
 simcir.registerDevice('8bitCounter',
 {
   "width":320,
@@ -233,7 +283,6 @@ simcir.registerDevice('HalfAdder',
   ]
 }
 );
-
 
 simcir.registerDevice('FullAdder',
 {
