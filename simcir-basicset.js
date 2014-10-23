@@ -115,20 +115,20 @@
     g.closePath();
   };
   var drawNOT = function(g, x, y, width, height) {
-    drawBUF(g, x, y, width - 4, height);
-    g.drawCircle(x + width - 2, y + height / 2, 2);
+    drawBUF(g, x - 1, y, width - 2, height);
+    g.drawCircle(x + width - 1, y + height / 2, 2);
   };
   var drawNAND = function(g, x, y, width, height) {
-    drawAND(g, x, y, width - 4, height);
-    g.drawCircle(x + width - 2, y + height / 2, 2);
+    drawAND(g, x - 1, y, width - 2, height);
+    g.drawCircle(x + width - 1, y + height / 2, 2);
   };
   var drawNOR = function(g, x, y, width, height) {
-    drawOR(g, x, y, width - 4, height);
-    g.drawCircle(x + width - 2, y + height / 2, 2);
+    drawOR(g, x - 1, y, width - 2, height);
+    g.drawCircle(x + width - 1, y + height / 2, 2);
   };
   var drawENOR = function(g, x, y, width, height) {
-    drawEOR(g, x, y, width - 4, height);
-    g.drawCircle(x + width - 2, y + height / 2, 2);
+    drawEOR(g, x - 1, y, width - 2, height);
+    g.drawCircle(x + width - 1, y + height / 2, 2);
   };
   // logical functions
   var AND = function(a, b) { return a & b; };

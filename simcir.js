@@ -866,6 +866,26 @@ var simcir = function($) {
       attr('class', 'simcir-workspace');
     disableSelection($workspace);
 
+    var $defs = createSVGElement('defs');
+
+    !function() {
+      // fill pin hole.
+      var patPitch = unit / 2;
+      var patW = workspaceWidth - toolboxWidth + patPitch;
+      var patH = workspaceHeight + patPitch;
+      $defs.append(createSVGElement('pattern').attr(
+        {id: 'simcir-pin-hole',
+          x: 0, y: 0, width: patPitch / patW, height: patPitch / patH}).append(
+            createSVGElement('circle').attr('class', 'simcir-pin-hole').
+            attr({cx: patPitch / 2, cy: patPitch / 2, r: 0.5}) ) );
+
+      $workspace.append($defs);
+      $workspace.append(createSVGElement('rect').
+          attr({x: toolboxWidth -patPitch / 2, y: -patPitch / 2,
+            width: patW, height: patH}).
+          css({fill:'url(#simcir-pin-hole)',stroke:'#ff0000'}) );
+    }();
+
     var $toolboxDevicePane = createSVGElement('g');
     var $scrollbar = createScrollbar();
     $scrollbar.on('scrollValueChange', function(event) {
