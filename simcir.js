@@ -870,26 +870,26 @@ var simcir = function($) {
     disableSelection($workspace);
 
     var $defs = createSVGElement('defs');
+    $workspace.append($defs);
 
     !function() {
 
       // fill with pin hole pattern.
-
       var patPitch = unit / 2;
       var patW = workspaceWidth - toolboxWidth + patPitch;
       var patH = workspaceHeight + patPitch;
-      $defs.append(createSVGElement('pattern').attr(
-        {id: workspaceId + '-pin-hole',
-          x: 0, y: 0, width: patPitch / patW, height: patPitch / patH}).append(
+      var patId = workspaceId + '-pin-hole';
+
+      $defs.append(createSVGElement('pattern').
+          attr({id: patId, x: 0, y: 0,
+            width: patPitch / patW, height: patPitch / patH}).append(
             createSVGElement('circle').attr('class', 'simcir-pin-hole').
             attr({cx: patPitch / 2, cy: patPitch / 2, r: 0.5}) ) );
 
-      $workspace.append($defs);
       $workspace.append(createSVGElement('rect').
-          attr({x: toolboxWidth -patPitch / 2, y: -patPitch / 2,
+          attr({x: toolboxWidth - patPitch / 2, y: -patPitch / 2,
             width: patW, height: patH}).
-          css({fill: 'url(#' + workspaceId + '-pin-hole)'}) );
-
+          css({fill: 'url(#' + patId + ')'}) );
     }();
 
     var $toolboxDevicePane = createSVGElement('g');
