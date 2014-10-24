@@ -845,7 +845,12 @@ var simcir = function($) {
     return $scrollbar;
   };
 
-  var wsIdCount = 0;
+  var getUniqueId = function() {
+    var uniqueIdCount = 0;
+    return function() {
+      return 'simcir-id' + uniqueIdCount++;
+    };
+  }();
 
   var createWorkspace = function(data) {
 
@@ -858,7 +863,6 @@ var simcir = function($) {
       connectors: [],
     }, data);
 
-    var workspaceId = 'simcir-workspace' + wsIdCount++;
     var workspaceWidth = data.width;
     var workspaceHeight = data.height;
     var barWidth = unit;
@@ -875,20 +879,20 @@ var simcir = function($) {
     !function() {
 
       // fill with pin hole pattern.
-      var patPitch = unit / 2;
-      var patW = workspaceWidth - toolboxWidth + patPitch;
-      var patH = workspaceHeight + patPitch;
-      var patId = workspaceId + '-pin-hole';
+      var patId = getUniqueId();
+      var pitch = unit / 2;
+      var w = workspaceWidth - toolboxWidth + pitch;
+      var h = workspaceHeight + pitch;
 
       $defs.append(createSVGElement('pattern').
           attr({id: patId, x: 0, y: 0,
-            width: patPitch / patW, height: patPitch / patH}).append(
+            width: pitch / w, height: pitch / h}).append(
             createSVGElement('circle').attr('class', 'simcir-pin-hole').
-            attr({cx: patPitch / 2, cy: patPitch / 2, r: 0.5}) ) );
+            attr({cx: pitch / 2, cy: pitch / 2, r: 0.5}) ) );
 
       $workspace.append(createSVGElement('rect').
-          attr({x: toolboxWidth - patPitch / 2, y: -patPitch / 2,
-            width: patW, height: patH}).
+          attr({x: toolboxWidth - pitch / 2, y: -pitch / 2,
+            width: w, height: h}).
           css({fill: 'url(#' + patId + ')'}) );
     }();
 
