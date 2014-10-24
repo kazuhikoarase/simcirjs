@@ -881,18 +881,17 @@ var simcir = function($) {
       // fill with pin hole pattern.
       var patId = getUniqueId();
       var pitch = unit / 2;
-      var w = workspaceWidth - toolboxWidth + pitch;
-      var h = workspaceHeight + pitch;
+      var w = workspaceWidth - toolboxWidth;
+      var h = workspaceHeight;
 
       $defs.append(createSVGElement('pattern').
           attr({id: patId, x: 0, y: 0,
             width: pitch / w, height: pitch / h}).append(
             createSVGElement('rect').attr('class', 'simcir-pin-hole').
-            attr({x: pitch / 2, y: pitch / 2, width: 1, height: 1}) ) );
+            attr({x: 0, y: 0, width: 1, height: 1}) ) );
 
       $workspace.append(createSVGElement('rect').
-          attr({x: toolboxWidth - pitch / 2, y: -pitch / 2,
-            width: w, height: h}).
+          attr({x: toolboxWidth, y: 0, width: w, height: h}).
           css({fill: 'url(#' + patId + ')'}) );
     }();
 
