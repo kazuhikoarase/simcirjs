@@ -887,8 +887,8 @@ var simcir = function($) {
       $defs.append(createSVGElement('pattern').
           attr({id: patId, x: 0, y: 0,
             width: pitch / w, height: pitch / h}).append(
-            createSVGElement('circle').attr('class', 'simcir-pin-hole').
-            attr({cx: pitch / 2, cy: pitch / 2, r: 0.5}) ) );
+            createSVGElement('rect').attr('class', 'simcir-pin-hole').
+            attr({x: pitch / 2, y: pitch / 2, width: 1, height: 1}) ) );
 
       $workspace.append(createSVGElement('rect').
           attr({x: toolboxWidth - pitch / 2, y: -pitch / 2,
