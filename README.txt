@@ -16,11 +16,11 @@ Web browser that supports HTML5
 
 README.txt           -- this file
 jquery-2.1.1.js      -- jQuery javascript (required)
-simcir.js            -- simcir core javascript (required)
-simcir.css           -- simcir core stylesheet (required)
-simcir-basicset.js   -- simcir basicset javascript (optional)
-simcir-basicset.css  -- simcir basicset stylesheet (optional)
-simcir-library.js    -- simcir library javascript
+simcir.js            -- Simcir core javascript (required)
+simcir.css           -- Simcir core stylesheet (required)
+simcir-basicset.js   -- Simcir basicset javascript (optional)
+simcir-basicset.css  -- Simcir basicset stylesheet (optional)
+simcir-library.js    -- Simcir library javascript
                         (optional, requires basicset)
 sample.html          -- sample of live circuit
 blank.html           -- blank template

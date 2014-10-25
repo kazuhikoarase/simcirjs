@@ -38,6 +38,10 @@
   fill: #555555;
 }
 
+.simcir-scrollbar-bar:hover {
+  fill: #444444;
+}
+
 .simcir-connector {
   stroke-width: 1;
   stroke: #0000ff;
