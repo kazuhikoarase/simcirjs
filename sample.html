@@ -190,24 +190,26 @@ label, color, number of inputs, freq ...
 <div class="simcir">
 {
   "width":500,
-  "height":300,
+  "height":400,
   "showToolbox":true,
   "toolbox":[
     {"type":"DC"},
     {"type":"Toggle"},
     {"type":"LED","color":"#00ff00","label":"LED(G)"},
     {"type":"NAND","numInputs":"3","label":"NAND(3in)"},
-    {"type":"OSC","freq":1,"label":"OSC(1Hz)"}
+    {"type":"OSC","freq":1,"label":"OSC(1Hz)"},
+    {"type":"7seg","color":"#000000","bgColor":"#889988"}
   ],
   "devices":[
-    {"type":"NAND","numInputs":"3","label":"NAND(3in)","id":"dev0","x":200,"y":80},
-    {"type":"Toggle","id":"dev1","x":144,"y":32,"label":"Toggle"},
-    {"type":"Toggle","id":"dev2","x":144,"y":80,"label":"Toggle"},
-    {"type":"Toggle","id":"dev3","x":144,"y":128,"label":"Toggle"},
-    {"type":"DC","id":"dev4","x":88,"y":80,"label":"DC"},
-    {"type":"LED","color":"#00ff00","label":"LED(G)","id":"dev5","x":256,"y":80},
-    {"type":"OSC","freq":1,"label":"OSC(1Hz)","id":"dev6","x":112,"y":208},
-    {"type":"LED","color":"#00ff00","label":"LED(G)","id":"dev7","x":176,"y":208}
+    {"type":"NAND","numInputs":"3","label":"NAND(3in)","id":"dev0","x":208,"y":128},
+    {"type":"Toggle","id":"dev1","x":152,"y":80,"label":"Toggle"},
+    {"type":"Toggle","id":"dev2","x":152,"y":128,"label":"Toggle"},
+    {"type":"Toggle","id":"dev3","x":152,"y":176,"label":"Toggle"},
+    {"type":"DC","id":"dev4","x":96,"y":128,"label":"DC"},
+    {"type":"LED","color":"#00ff00","label":"LED(G)","id":"dev5","x":264,"y":128},
+    {"type":"OSC","freq":1,"label":"OSC(1Hz)","id":"dev6","x":96,"y":232},
+    {"type":"NAND","numInputs":"3","label":"NAND(3in)","id":"dev7","x":152,"y":272},
+    {"type":"7seg","color":"#000000","bgColor":"#889988","id":"dev8","x":208,"y":232,"label":"7seg"}
   ],
   "connectors":[
     {"from":"dev0.in0","to":"dev1.out0"},
@@ -217,7 +219,16 @@ label, color, number of inputs, freq ...
     {"from":"dev2.in0","to":"dev4.out0"},
     {"from":"dev3.in0","to":"dev4.out0"},
     {"from":"dev5.in0","to":"dev0.out0"},
-    {"from":"dev7.in0","to":"dev6.out0"}
+    {"from":"dev7.in0","to":"dev6.out0"},
+    {"from":"dev7.in1","to":"dev6.out0"},
+    {"from":"dev7.in2","to":"dev6.out0"},
+    {"from":"dev8.in0","to":"dev6.out0"},
+    {"from":"dev8.in1","to":"dev7.out0"},
+    {"from":"dev8.in2","to":"dev7.out0"},
+    {"from":"dev8.in3","to":"dev6.out0"},
+    {"from":"dev8.in4","to":"dev7.out0"},
+    {"from":"dev8.in5","to":"dev7.out0"},
+    {"from":"dev8.in6","to":"dev6.out0"}
   ]
 }
 </div>
