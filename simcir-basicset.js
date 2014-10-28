@@ -79,7 +79,7 @@
       var c1 = toRGB(iColor1);
       var c2 = toRGB(iColor2);
       var mc = function(v1, v2, ratio) {
-        return Math.max(0, Math.min( (v1 - v2) * ratio + v2, 255) );
+        return ~~Math.max(0, Math.min( (v1 - v2) * ratio + v2, 255) );
       };
       return (mc(c1.r, c2.r, ratio) << 16) |
         (mc(c1.g, c2.g, ratio) << 8) | mc(c1.b, c2.b, ratio);
