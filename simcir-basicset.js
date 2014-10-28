@@ -404,7 +404,7 @@
   var createLEDSegFactory = function(seg) {
     return function(device) {
       var hiColor = device.deviceDef.color || defaultLEDColor;
-      var bgColor = device.deviceDef['background-color'] || defaultLEDBgColor;
+      var bgColor = device.deviceDef.bgColor || defaultLEDBgColor;
       var loColor = multiplyColor(hiColor, bgColor, 0.25);
       var allSegs = seg.allSegments + '.';
       device.halfPitch = true;
@@ -443,9 +443,9 @@
             {name: 'color', type: 'string',
               defaultValue: defaultLEDColor,
               description: 'color in hexadecimal.'},
-            {name: 'background-color', type: 'string',
+            {name: 'bgColor', type: 'string',
               defaultValue: defaultLEDBgColor,
-              description: 'color in hexadecimal.'}
+              description: 'background color in hexadecimal.'}
           ],
           code: '{"type":"' + device.deviceDef.type +
           '","color":"' + defaultLEDColor + '"}'
@@ -483,7 +483,7 @@
 
     return function(device) {
       var hiColor = device.deviceDef.color || defaultLEDColor;
-      var bgColor = device.deviceDef['background-color'] || defaultLEDBgColor;
+      var bgColor = device.deviceDef.bgColor || defaultLEDBgColor;
       var loColor = multiplyColor(hiColor, bgColor, 0.25);
       for (var i = 0; i < 4; i += 1) {
         device.addInput();
@@ -520,9 +520,9 @@
             {name: 'color', type: 'string',
               defaultValue: defaultLEDColor,
               description: 'color in hexadecimal.'},
-            {name: 'background-color', type: 'string',
+            {name: 'bgColor', type: 'string',
               defaultValue: defaultLEDBgColor,
-              description: 'color in hexadecimal.'}
+              description: 'background color in hexadecimal.'}
           ],
           code: '{"type":"' + device.deviceDef.type +
           '","color":"' + defaultLEDColor + '"}'
@@ -660,7 +660,7 @@
     device.createUI = function() {
       super_createUI();
       var hiColor = device.deviceDef.color || defaultLEDColor;
-      var bgColor = device.deviceDef['background-color'] || defaultLEDBgColor;
+      var bgColor = device.deviceDef.bgColor || defaultLEDBgColor;
       var loColor = multiplyColor(hiColor, bgColor, 0.25);
       var bLoColor = multiplyColor(hiColor, bgColor, 0.2);
       var bHiColor = multiplyColor(hiColor, bgColor, 0.8);
@@ -684,9 +684,9 @@
           {name: 'color', type: 'string',
             defaultValue: defaultLEDColor,
             description: 'color in hexadecimal.'},
-          {name: 'background-color', type: 'string',
+          {name: 'bgColor', type: 'string',
             defaultValue: defaultLEDBgColor,
-            description: 'color in hexadecimal.'}
+            description: 'background color in hexadecimal.'}
         ],
         code: '{"type":"' + device.deviceDef.type +
         '","color":"' + defaultLEDColor + '"}'
