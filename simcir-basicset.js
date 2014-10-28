@@ -36,8 +36,9 @@
   // unit size
   var unit = $s.unit;
 
-  // red
+  // red/black
   var defaultLEDColor = '#ff0000';
+  var defaultLEDBgColor = '#000000';
 
   var multiplyColor = function() {
     var HEX = '0123456789abcdef';
@@ -68,17 +69,24 @@
       }
       return sColor;
     };
-    var multiplyColor = function(iColor, ratio) {
-      var r = (iColor >>> 16) & 0xff;
-      var g = (iColor >>> 8) & 0xff;
-      var b = iColor & 0xff;
-      var mc = function(v, ratio) {
-        return Math.max(0, Math.min(v * ratio, 255) );
-      };
-      return (mc(r, ratio) << 16) | (mc(g, ratio) << 8) | mc(b, ratio);
+    var toRGB = function(iColor) {
+      return {
+        r: (iColor >>> 16) & 0xff,
+        g: (iColor >>> 8) & 0xff,
+        b: iColor & 0xff};
     };
-    return function(color, ratio) {
-      return toSColor(multiplyColor(toIColor(color), ratio) );
+    var multiplyColor = function(iColor1, iColor2, ratio) {
+      var c1 = toRGB(iColor1);
+      var c2 = toRGB(iColor2);
+      var mc = function(v1, v2, ratio) {
+        return Math.max(0, Math.min( (v1 - v2) * ratio + v2, 255) );
+      };
+      return (mc(c1.r, c2.r, ratio) << 16) |
+        (mc(c1.g, c2.g, ratio) << 8) | mc(c1.b, c2.b, ratio);
+    };
+    return function(color1, color2, ratio) {
+      return toSColor(multiplyColor(
+          toIColor(color1), toIColor(color2), ratio) );
     };
   }();
 
@@ -311,7 +319,7 @@
       }
     };
   }();
-  
+
   var _16Seg = function() {
     var _SEGMENT_DATA = {
       a: [255, 184, 356, 184, 407, 142, 373, 102, 187, 102],
@@ -396,7 +404,8 @@
   var createLEDSegFactory = function(seg) {
     return function(device) {
       var hiColor = device.deviceDef.color || defaultLEDColor;
-      var loColor = multiplyColor(hiColor, 0.25);
+      var bgColor = device.deviceDef['background-color'] || defaultLEDBgColor;
+      var loColor = multiplyColor(hiColor, bgColor, 0.25);
       var allSegs = seg.allSegments + '.';
       device.halfPitch = true;
       for (var i = 0; i < allSegs.length; i += 1) {
@@ -424,7 +433,8 @@
             }
           }
           $seg.children().remove();
-          drawSeg(seg, $s.graphics($seg), segs, hiColor, loColor, '#000000');
+          drawSeg(seg, $s.graphics($seg), segs,
+              hiColor, loColor, bgColor);
         };
         device.$ui.on('inputValueChange', update);
         update();
@@ -432,6 +442,9 @@
           params: [
             {name: 'color', type: 'string',
               defaultValue: defaultLEDColor,
+              description: 'color in hexadecimal.'},
+            {name: 'background-color', type: 'string',
+              defaultValue: defaultLEDBgColor,
               description: 'color in hexadecimal.'}
           ],
           code: '{"type":"' + device.deviceDef.type +
@@ -470,7 +483,8 @@
 
     return function(device) {
       var hiColor = device.deviceDef.color || defaultLEDColor;
-      var loColor = multiplyColor(hiColor, 0.25);
+      var bgColor = device.deviceDef['background-color'] || defaultLEDBgColor;
+      var loColor = multiplyColor(hiColor, bgColor, 0.25);
       for (var i = 0; i < 4; i += 1) {
         device.addInput();
       }
@@ -497,7 +511,7 @@
           }
           $seg.children().remove();
           drawSeg(seg, $s.graphics($seg), getPattern(value),
-              hiColor, loColor, '#000000');
+              hiColor, loColor, bgColor);
         };
         device.$ui.on('inputValueChange', update);
         update();
@@ -505,6 +519,9 @@
           params: [
             {name: 'color', type: 'string',
               defaultValue: defaultLEDColor,
+              description: 'color in hexadecimal.'},
+            {name: 'background-color', type: 'string',
+              defaultValue: defaultLEDBgColor,
               description: 'color in hexadecimal.'}
           ],
           code: '{"type":"' + device.deviceDef.type +
@@ -513,6 +530,7 @@
       };
     };
   };
+
   var createRotaryEncoderFactory = function() {
     var _MIN_ANGLE = 45;
     var _MAX_ANGLE = 315;
@@ -642,9 +660,10 @@
     device.createUI = function() {
       super_createUI();
       var hiColor = device.deviceDef.color || defaultLEDColor;
-      var loColor = multiplyColor(hiColor, 0.25);
-      var bLoColor = multiplyColor(hiColor, 0.2);
-      var bHiColor = multiplyColor(hiColor, 0.8);
+      var bgColor = device.deviceDef['background-color'] || defaultLEDBgColor;
+      var loColor = multiplyColor(hiColor, bgColor, 0.25);
+      var bLoColor = multiplyColor(hiColor, bgColor, 0.2);
+      var bHiColor = multiplyColor(hiColor, bgColor, 0.8);
       var size = device.getSize();
       var $ledbase = $s.createSVGElement('circle').
         attr({cx: size.width / 2, cy: size.height / 2, r: size.width / 4}).
@@ -664,6 +683,9 @@
         params: [
           {name: 'color', type: 'string',
             defaultValue: defaultLEDColor,
+            description: 'color in hexadecimal.'},
+          {name: 'background-color', type: 'string',
+            defaultValue: defaultLEDBgColor,
             description: 'color in hexadecimal.'}
         ],
         code: '{"type":"' + device.deviceDef.type +
