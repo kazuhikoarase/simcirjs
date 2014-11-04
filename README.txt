@@ -15,7 +15,7 @@ Web browser that supports HTML5
 -- Contents
 
 README.txt           -- this file
-jquery-2.1.1.js      -- jQuery javascript (required)
+jquery-2.1.1.min.js  -- jQuery javascript (required)
 simcir.js            -- Simcir core javascript (required)
 simcir.css           -- Simcir core stylesheet (required)
 simcir-basicset.js   -- Simcir basicset javascript (optional)
