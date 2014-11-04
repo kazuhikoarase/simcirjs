@@ -27,19 +27,19 @@
 }
 
 .simcir-toolbox {
-  fill: #999999;
+  fill: #eeeeee;
 }
 
 .simcir-scrollbar {
-  fill: #777777;
+  fill: #cccccc;
 }
 
 .simcir-scrollbar-bar {
-  fill: #555555;
+  fill: #aaaaaa;
 }
 
 .simcir-scrollbar-bar:hover {
-  fill: #444444;
+  fill: #999999;
 }
 
 .simcir-connector {
