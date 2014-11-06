@@ -18,7 +18,7 @@
   overflow: hidden;
   border-width: 1px;
   border-style: solid;
-  border-color: #999999;
+  border-color: #666666;
 }
 
 .simcir-pin-hole {
@@ -169,7 +169,7 @@ TABLE.simcir-doc-table TH,
 TABLE.simcir-doc-table TD {
   border-width: 1px;
   border-style: solid;
-  vorder-color: $cccccc;
+  border-color: #666666;
 }
 
 TABLE.simcir-doc-table TH,
