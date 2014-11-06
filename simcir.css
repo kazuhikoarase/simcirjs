@@ -186,7 +186,7 @@ TABLE.simcir-doc-params-table TH,
 TABLE.simcir-doc-params-table TD {
   border-width: 1px;
   border-style: solid;
-  vorder-color: $cccccc;
+  border-color: #666666;
 }
 
 TABLE.simcir-doc-params-table TH,
