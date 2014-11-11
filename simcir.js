@@ -728,6 +728,8 @@ var simcir = function($) {
       };
       device.$ui.on('dblclick', function(event) {
         // open library,
+        event.preventDefault();
+        event.stopPropagation();
         showDialog(device.deviceDef.label || device.deviceDef.type,
             setupSimcir($('<div></div>'), data) );
       });
