@@ -108,8 +108,8 @@
   var drawOR = function(g, x, y, width, height) {
     var depth = width * 0.2;
     g.moveTo(x, y);
-    g.curveTo(x + width, y, x + width, y + height / 2);
-    g.curveTo(x + width, y + height, x, y + height);
+    g.curveTo(x + width - depth, y, x + width, y + height / 2);
+    g.curveTo(x + width - depth, y + height, x, y + height);
     g.curveTo(x + depth, y + height, x + depth, y + height / 2);
     g.curveTo(x + depth, y, x, y);
     g.closePath(true);
