@@ -1420,7 +1420,7 @@ var simcir = function($) {
 
   $(function() {
     $('.simcir').each(function() {
-      $placeHolder = $(this);
+      var $placeHolder = $(this);
       var text = $placeHolder.text().replace(/^\s+|\s+$/g, '');
       setupSimcir($placeHolder, JSON.parse(text || '{}') );
     });
