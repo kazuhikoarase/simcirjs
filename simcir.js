@@ -408,7 +408,7 @@ var simcir = function($) {
     };
     var disconnectAll = function() {
       $.each(getInputs(), function(i, inNode) {
-        outNode = inNode.getOutput();
+        var outNode = inNode.getOutput();
         if (outNode != null) {
           outNode.disconnectFrom(inNode);
         }
@@ -1420,7 +1420,7 @@ var simcir = function($) {
 
   $(function() {
     $('.simcir').each(function() {
-      $placeHolder = $(this);
+      var $placeHolder = $(this);
       var text = $placeHolder.text().replace(/^\s+|\s+$/g, '');
       setupSimcir($placeHolder, JSON.parse(text || '{}') );
     });
