@@ -107,6 +107,8 @@
 }
 
 .simcir-json-data-area {
+  padding: 0px;
+  outline: none;
   border-width: 1px;
   border-style: solid;
   border-color: #000000;
