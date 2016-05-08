@@ -762,7 +762,12 @@ var simcir = function($) {
       attr('class', 'simcir-scrollbar-bar');
     var $scrollbar = createSVGElement('g').
       attr('class', 'simcir-scrollbar').
-      append($body).append($bar);
+      append($body).append($bar).
+      on('rollup', function(event) {
+        setValues(_value - _barSize, _min, _max, _barSize);
+      }).on('rolldown', function(event) {
+        setValues(_value + _barSize, _min, _max, _barSize);
+      });
 
     var dragPoint = null;
     var bar_mouseDownHandler = function(event) {
@@ -794,9 +799,9 @@ var simcir = function($) {
       var y = event.pageY - off.top - pos.y;
       var barPos = transform($bar);
       if (y < barPos.y) {
-        setValues(_value - _barSize, _min, _max, _barSize);
+        $scrollbar.trigger('rollup');
       } else {
-        setValues(_value + _barSize, _min, _max, _barSize);
+        $scrollbar.trigger('rolldown');
       }
     };
     $body.on('mousedown', body_mouseDownHandler);
@@ -912,7 +917,14 @@ var simcir = function($) {
           width: toolboxWidth,
           height: workspaceHeight}) ).
       append($toolboxDevicePane).
-      append($scrollbar);
+      append($scrollbar).on('wheel', function(event) {
+        event.preventDefault();
+        if (event.originalEvent.deltaY < 0) {
+          $scrollbar.trigger('rollup');
+        } else if (event.originalEvent.deltaY > 0) {
+          $scrollbar.trigger('rolldown');
+        }
+      });
 
     var $devicePane = createSVGElement('g');
     transform($devicePane, toolboxWidth, 0);
