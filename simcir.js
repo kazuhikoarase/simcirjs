@@ -763,10 +763,14 @@ var simcir = function($) {
     var $scrollbar = createSVGElement('g').
       attr('class', 'simcir-scrollbar').
       append($body).append($bar).
-      on('rollup', function(event) {
-        setValues(_value - _barSize, _min, _max, _barSize);
+      on('unitup', function(event) {
+        setValue(_value - unit * 2);
+      }).on('unitdown', function(event) {
+        setValue(_value + unit * 2);
+      }).on('rollup', function(event) {
+        setValue(_value - _barSize);
       }).on('rolldown', function(event) {
-        setValues(_value + _barSize, _min, _max, _barSize);
+        setValue(_value + _barSize);
       });
 
     var dragPoint = null;
@@ -782,8 +786,7 @@ var simcir = function($) {
     };
     var bar_mouseMoveHandler = function(event) {
       calc(function(unitSize) {
-        setValues( (event.pageY - dragPoint.y) /
-            unitSize, _min, _max, _barSize);
+        setValue( (event.pageY - dragPoint.y) / unitSize);
       });
     };
     var bar_mouseUpHandler = function(event) {
@@ -828,6 +831,9 @@ var simcir = function($) {
     };
     var calc = function(f) {
       f(_height / (_max - _min) );
+    };
+    var setValue = function(value) {
+      setValues(value, _min, _max, _barSize);
     };
     var setValues = function(value, min, max, barSize) {
       value = Math.max(min, Math.min(value, max - barSize) );
@@ -920,9 +926,9 @@ var simcir = function($) {
       append($scrollbar).on('wheel', function(event) {
         event.preventDefault();
         if (event.originalEvent.deltaY < 0) {
-          $scrollbar.trigger('rollup');
+          $scrollbar.trigger('unitup');
         } else if (event.originalEvent.deltaY > 0) {
-          $scrollbar.trigger('rolldown');
+          $scrollbar.trigger('unitdown');
         }
       });
 
