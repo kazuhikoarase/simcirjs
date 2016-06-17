@@ -297,7 +297,7 @@
       height: 1000,
       allSegments: 'abcdefg',
       drawSegment: function(g, segment, color) {
-        if (color < 0) {
+        if (!color) {
           return;
         }
         var data = _SEGMENT_DATA[segment];
