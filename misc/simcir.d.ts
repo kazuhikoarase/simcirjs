@@ -46,7 +46,12 @@ interface SimcirOutputNode extends SimcirNode {
   disconnectFrom(inNode : SimcirInputNode) : void;
 }
 
-interface SimcirDeviceDef { type: string, label?: string }
+interface SimcirDeviceDefBase { [id : string] : string|number }
+
+interface SimcirDeviceDef extends SimcirDeviceDefBase {
+  type: string;
+  label?: string;
+}
 
 interface SimcirDeviceInstance extends SimcirDeviceDef {
   id: string;
@@ -89,6 +94,8 @@ interface SimcirData {
   connectors: SimcirConnectorDef[];
 }
 
+type SimcirTypeFactory = <Def extends SimcirDeviceDef>(device : Def) => void;
+
 interface Simcir {
   unit: number;
   createSVGElement(tagName: string) : JQuery;
@@ -100,12 +107,10 @@ interface Simcir {
   transform($o: JQuery, x: number, y: number, rotate: number) : void;
   transform($o: JQuery) : { x: number; y: number; rotate: number; };
   enableEvents($o: JQuery, enable: boolean) : void;
-  controller($ui: JQuery, controller?: any) : void;
+  controller($ui: JQuery, controller: any) : void;
   controller($ui: JQuery) : any;
-  registerDevice(type: string,
-    factory: <Def extends SimcirDeviceDef>(device : Def) => void) : void;
+  registerDevice(type: string, factory: SimcirTypeFactory) : void;
   registerDevice(type: string, data: SimcirData) : void;
-  registerDevice(type: string, data: { [id : string] : any }) : void;
   setupSimcir($placeHolder: JQuery, data: SimcirData) : JQuery;
   createWorkspace(data: SimcirData) : JQuery;
 }
