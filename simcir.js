@@ -497,7 +497,7 @@ var simcir = function($) {
         $label.text(getLabel() );
       });
 
-      var label_dblClickHandler = function() {
+      var label_dblClickHandler = function(event) {
         // open library,
         event.preventDefault();
         event.stopPropagation();
@@ -616,8 +616,8 @@ var simcir = function($) {
       text(title).
       css('cursor', 'default').
       on('mousedown', function(event) {
-      event.preventDefault();
-    });
+        event.preventDefault();
+      });
     var $dlg = $('<div></div>').
       addClass('simcir-dialog').
       css({position:'absolute'}).
