@@ -532,6 +532,8 @@ var simcir = function($) {
 
     };
 
+    var getState = function() { return null; };
+
     return $.extend(device, {
       addInput: addInput,
       addOutput: addOutput,
@@ -544,7 +546,8 @@ var simcir = function($) {
       halfPitch: false,
       getSize: getSize,
       createUI: createUI,
-      layoutUI: layoutUI
+      layoutUI: layoutUI,
+      getState: getState
     });
   };
 
@@ -1038,6 +1041,10 @@ var simcir = function($) {
         deviceDef.x = pos.x;
         deviceDef.y = pos.y;
         deviceDef.label = device.getLabel();
+        var state = device.getState();
+        if (state != null) {
+          deviceDef.state = state;
+        }
         devices.push(deviceDef);
       });
       return {

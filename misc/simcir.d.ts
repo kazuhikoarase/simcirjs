@@ -81,6 +81,7 @@ interface SimcirDevice<Def extends SimcirDeviceDef> {
   getLabel() : string;
   getSize() : SimcirSize;
   createUI() : void;
+  getState() : any;
 }
 
 interface SimcirConnectorDef { from: string; to: string; }
