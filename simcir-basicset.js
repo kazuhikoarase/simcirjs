@@ -156,6 +156,13 @@
       var out1 = device.addOutput();
       var on = (type == 'PushOff');
 
+      if (type == 'Toggle' && device.deviceDef.state) {
+        on = device.deviceDef.state.on;
+      }
+      device.getState = function() {
+        return type == 'Toggle'? { on : on } : null;
+      };
+
       device.$ui.on('inputValueChange', function() {
         if (on) {
           out1.setValue(in1.getValue() );
@@ -175,6 +182,9 @@
             width: size.width / 2, height: size.height / 2,
             rx: 2, ry: 2});
         $s.addClass($button, 'simcir-basicset-switch-button');
+        if (type == 'Toggle' && on) {
+          $s.addClass($button, 'simcir-basicset-switch-button-pressed');
+        }
         device.$ui.append($button);
         var button_mouseDownHandler = function(event) {
           event.preventDefault();
