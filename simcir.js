@@ -598,6 +598,37 @@ var simcir = function($) {
     return $devices;
   };
 
+  var dialogManager = function() {
+    var dialogs = [];
+    var updateDialogs = function($dlg, remove) {
+      var newDialogs = [];
+      $.each(dialogs, function(i) {
+        if (dialogs[i] != $dlg) {
+          newDialogs.push(dialogs[i]);
+        }
+      });
+      if (!remove) {
+        newDialogs.push($dlg);
+      }
+      // renumber z-index
+      $.each(newDialogs, function(i) {
+        newDialogs[i].css('z-index', '' + (i + 1) );
+      });
+      dialogs = newDialogs;
+    };
+    return {
+      add : function($dlg) {
+        updateDialogs($dlg);
+      },
+      remove : function($dlg) {
+        updateDialogs($dlg, true);
+      },
+      toFront : function($dlg) {
+        updateDialogs($dlg);
+      }
+    };
+  }();
+
   var showDialog = function(title, $content) {
     var $closeButton = function() {
       var r = 16;
@@ -630,6 +661,7 @@ var simcir = function($) {
       append($('<br/>').css('clear', 'both') ).
       append($content);
     $('BODY').append($dlg);
+    dialogManager.add($dlg);
     var dragPoint = null;
     var dlg_mouseDownHandler = function(event) {
       if (!$(event.target).hasClass('simcir-dialog') &&
@@ -637,8 +669,7 @@ var simcir = function($) {
         return;
       }
       event.preventDefault();
-      $dlg.detach();
-      $('BODY').append($dlg);
+      dialogManager.toFront($dlg);
       var off = $dlg.offset();
       dragPoint = {
         x: event.pageX - off.left,
@@ -658,6 +689,7 @@ var simcir = function($) {
     $dlg.on('mousedown', dlg_mouseDownHandler);
     $closeButton.on('mousedown', function() {
       $dlg.remove();
+      dialogManager.remove($dlg);
     });
     var w = $dlg.width();
     var h = $dlg.height();
