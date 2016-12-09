@@ -1550,16 +1550,16 @@ var simcir = function($) {
       device.createUI = function() {
         super_createUI();
 
+        var $point = $s.createSVGElement('circle').
+          css('pointer-events', 'none').css('opacity', 0).attr('r', 2);
+        $s.addClass($point, 'simcir-connector');
+        $s.addClass($point, 'simcir-joint-point');
+        device.$ui.append($point);
+
         var $path = $s.createSVGElement('path').
           css('pointer-events', 'none').css('opacity', 0);
         $s.addClass($path, 'simcir-connector');
         device.$ui.append($path);
-
-        var $point = $s.createSVGElement('circle').
-          css('pointer-events', 'none').css('opacity', 0).
-          css('stroke-width', 3).attr('r', 2);
-        $s.addClass($point, 'simcir-connector');
-        device.$ui.append($point);
 
         var $title = $s.createSVGElement('title').
           text('Double-Click to change a direction.');
@@ -1661,7 +1661,11 @@ var simcir = function($) {
             // hide a label
             device.$ui.children('.simcir-device-label').css('display', '');
           }).on('deviceSelect', function() {
-            $path.css('stroke-width', device.isSelected()? '2' : '');
+            if (device.isSelected() ) {
+              $s.addClass($path, 'simcir-joint-selected');
+            } else {
+              $s.removeClass($path, 'simcir-joint-selected');
+            }
           });
       };
     };
