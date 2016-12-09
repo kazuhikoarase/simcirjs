@@ -325,9 +325,9 @@ var simcir = function($) {
     var super_setValue = node.setValue;
     var setValue = function(value) {
       super_setValue(value);
-      $.each(inputs, function(i, inputNode) {
-        inputNode.setValue(value);
-      });
+      for (var i = 0; i < inputs.length; i += 1) {
+        inputs[i].setValue(value);
+      }
     };
     var connectTo = function(inNode) {
       if (inNode.getOutput() != null) {
