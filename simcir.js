@@ -1633,8 +1633,10 @@ var simcir = function($) {
         };
 
         var device_mouseoutHandler = function(event) {
-          fadeCount = maxFadeCount;
-          fadeout();
+          if (!device.isSelected() ) {
+            fadeCount = maxFadeCount;
+            fadeout();
+          }
         };
         var device_dblclickHandler = function(event) {
           state.direction = (state.direction + 1) % 4;
@@ -1662,9 +1664,12 @@ var simcir = function($) {
             device.$ui.children('.simcir-device-label').css('display', '');
           }).on('deviceSelect', function() {
             if (device.isSelected() ) {
-              $s.addClass($path, 'simcir-joint-selected');
+              setOpacity(1);
+              fadeCount = 0;
             } else {
-              $s.removeClass($path, 'simcir-joint-selected');
+              if (fadeCount == 0) {
+                setOpacity(0);
+              }
             }
           });
       };
