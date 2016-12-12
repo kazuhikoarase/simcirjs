@@ -358,15 +358,16 @@ var simcir = function($) {
     });
   };
 
-  var createDevice = function(deviceDef, headless) {
+  var createDevice = function(deviceDef, headless, scope) {
     headless = headless || false;
+    scope = scope || null;
     var $dev = createSVGElement('g');
     if (!headless) {
       $dev.attr('class', 'simcir-device');
     }
     controller($dev, createDeviceController(
         {$ui: $dev, deviceDef: deviceDef,
-          headless: headless, doc: null}) );
+          headless: headless, scope: scope, doc: null}) );
     var factory = factories[deviceDef.type];
     if (factory) {
       factory(controller($dev) );
@@ -568,7 +569,7 @@ var simcir = function($) {
     }
   };
 
-  var buildCircuit = function(data, headless) {
+  var buildCircuit = function(data, headless, scope) {
     var $devices = [];
     var $devMap = {};
     var getNode = function(path) {
@@ -583,7 +584,7 @@ var simcir = function($) {
         controller($devMap[devId]).getOutputs()[index];
     };
     $.each(data.devices, function(i, deviceDef) {
-      var $dev = createDevice(deviceDef, headless);
+      var $dev = createDevice(deviceDef, headless, scope);
       transform($dev, deviceDef.x, deviceDef.y);
       $devices.push($dev);
       $devMap[deviceDef.id] = $dev;
@@ -706,7 +707,7 @@ var simcir = function($) {
 
   var createDeviceRefFactory = function(data) {
     return function(device) {
-      var $devs = buildCircuit(data, true);
+      var $devs = buildCircuit(data, true, {});
       var $ports = [];
       $.each($devs, function(i, $dev) {
         var deviceDef = controller($dev).deviceDef;
@@ -913,6 +914,8 @@ var simcir = function($) {
       devices: [],
       connectors: [],
     }, data);
+
+    var scope = {};
 
     var workspaceWidth = data.width;
     var workspaceHeight = data.height;
@@ -1171,7 +1174,7 @@ var simcir = function($) {
     var beginNewDevice = function(event, $target) {
       var $dev = $target.closest('.simcir-device');
       var pos = offset($dev);
-      $dev = createDevice(controller($dev).deviceDef);
+      $dev = createDevice(controller($dev).deviceDef, false, scope);
       transform($dev, pos.x, pos.y);
       $temporaryPane.append($dev);
       var dragPoint = {
@@ -1335,7 +1338,7 @@ var simcir = function($) {
     //
 
     loadToolbox(data);
-    $.each(buildCircuit(data, false), function(i, $dev) {
+    $.each(buildCircuit(data, false, scope), function(i, $dev) {
       addDevice($dev);
     });
     updateConnectors();
