@@ -73,6 +73,7 @@ interface SimcirDevice<Def extends SimcirDeviceDef> {
   doc: SimcirDocument;
   halfPitch: boolean;
   headless: boolean;
+  scope: any;
   deviceDef: Def;
   addInput(label? : string, description? : string) : SimcirInputNode;
   getInputs() : SimcirInputNode[];
