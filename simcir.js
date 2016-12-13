@@ -1553,6 +1553,9 @@ var simcir = function($) {
       device.createUI = function() {
         super_createUI();
 
+        var $label = device.$ui.children('.simcir-device-label');
+        $label.attr('y', $label.attr('y') - unit / 4);
+
         var $point = $s.createSVGElement('circle').
           css('pointer-events', 'none').css('opacity', 0).attr('r', 2);
         $s.addClass($point, 'simcir-connector');
@@ -1658,13 +1661,13 @@ var simcir = function($) {
             $(this).append($title).on('mouseout', device_mouseoutHandler).
               on('dblclick', device_dblclickHandler);
             // hide a label
-            device.$ui.children('.simcir-device-label').css('display', 'none');
+            $label.css('display', 'none');
           }).on('deviceRemove', function() {
             $(this).off('mouseout', device_mouseoutHandler).
               off('dblclick', device_dblclickHandler);
             $title.remove();
             // hide a label
-            device.$ui.children('.simcir-device-label').css('display', '');
+            $label.css('display', '');
           }).on('deviceSelect', function() {
             if (device.isSelected() ) {
               setOpacity(1);
