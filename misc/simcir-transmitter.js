@@ -12,8 +12,9 @@
 // includes following device types:
 //  Transmitter
 
-'use strict';
 !function($, $s) {
+
+  'use strict';
 
   // unit size
   var unit = $s.unit;
@@ -308,6 +309,12 @@
               }
             }
           });
+        device.doc = {
+          description:
+            'Transmit a signal to another trasmitter that has same label.',
+          params: [],
+          code: '{"type":"' + device.deviceDef.type + '"}'
+        };
       };
     };
   };
