@@ -1411,27 +1411,26 @@ var simcir = function($) {
             text(doc.description) );
       }
 
-      if (doc.params.length > 0) {
-        $desc.append($('<div>Params</div>').addClass('simcir-doc-title') );
-        var $paramsTable = $('<table><tbody></tbody></table>').
-          addClass('simcir-doc-params-table');
-        $paramsTable.children('tbody').append($('<tr></tr>').
-            append($('<th>Name</th>') ).
-            append($('<th>Type</th>') ).
-            append($('<th>Default</th>') ).
-            append($('<th>Description</th>') ) );
-        $paramsTable.children('tbody').append($('<tr></tr>').
-            append($('<td>type</td>') ).
-            append($('<td>string</td>') ).
-            append($('<td>-</td>').
-                css('text-align', 'center') ).
-            append($('<td>"' + deviceDef.type + '"</td>') ) );
-        $paramsTable.children('tbody').append($('<tr></tr>').
-            append($('<td>label</td>') ).
-            append($('<td>string</td>') ).
-            append($('<td>same with type</td>').css('text-align', 'center') ).
-            append($('<td>label for a device.</td>') ) );
-
+      $desc.append($('<div>Params</div>').addClass('simcir-doc-title') );
+      var $paramsTable = $('<table><tbody></tbody></table>').
+        addClass('simcir-doc-params-table');
+      $paramsTable.children('tbody').append($('<tr></tr>').
+          append($('<th>Name</th>') ).
+          append($('<th>Type</th>') ).
+          append($('<th>Default</th>') ).
+          append($('<th>Description</th>') ) );
+      $paramsTable.children('tbody').append($('<tr></tr>').
+          append($('<td>type</td>') ).
+          append($('<td>string</td>') ).
+          append($('<td>-</td>').
+              css('text-align', 'center') ).
+          append($('<td>"' + deviceDef.type + '"</td>') ) );
+      $paramsTable.children('tbody').append($('<tr></tr>').
+          append($('<td>label</td>') ).
+          append($('<td>string</td>') ).
+          append($('<td>same with type</td>').css('text-align', 'center') ).
+          append($('<td>label for a device.</td>') ) );
+      if (doc.params) {
         $.each(doc.params, function(i, param) {
           $paramsTable.children('tbody').append($('<tr></tr>').
             append($('<td></td>').text(param.name) ).
@@ -1440,8 +1439,8 @@ var simcir = function($) {
                 text(param.defaultValue) ).
             append($('<td></td>').text(param.description) ) );
         });
-        $desc.append($paramsTable);
       }
+      $desc.append($paramsTable);
 
       if (doc.code) {
         $desc.append($('<div>Code</div>').addClass('simcir-doc-title') );
