@@ -12,9 +12,11 @@
 // includes following device types:
 //  Transmitter
 
-!function($, $s) {
+!function($s) {
 
   'use strict';
+
+  var $ = $s.$;
 
   // unit size
   var unit = $s.unit;
@@ -321,4 +323,4 @@
 
   $s.registerDevice('Transmitter', createTransmitterFactory() );
 
-}(jQuery, simcir);
+}(simcir);

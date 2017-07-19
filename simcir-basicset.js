@@ -31,7 +31,11 @@
 //  BusIn
 //  BusOut
 
-!function($, $s) {
+!function($s) {
+
+  'use strict';
+
+  var $ = $s.$;
 
   // unit size
   var unit = $s.unit;
@@ -827,4 +831,4 @@
     };
   });
 
-}(jQuery, simcir);
+}(simcir);
