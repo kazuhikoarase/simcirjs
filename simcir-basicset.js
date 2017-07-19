@@ -605,7 +605,7 @@
           $(document).on('mouseup', knob_mouseUpHandler);
         };
         var knob_mouseMoveHandler = function(event) {
-          var off = $knob.parents('svg').offset();
+          var off = $knob.parent('svg').offset();
           var pos = $s.offset($knob);
           var cx = off.left + pos.x;
           var cy = off.top + pos.y;

@@ -696,8 +696,8 @@ var simcir = function($) {
     var h = $dlg.height();
     var cw = $(window).width();
     var ch = $(window).height();
-    var x = (cw - w) / 2 + $(document).scrollLeft();
-    var y = (ch - h) / 2 + $(document).scrollTop();
+    var x = (cw - w) / 2 + $(document.body).scrollLeft();
+    var y = (ch - h) / 2 + $(document.body).scrollTop();
     var moveTo = function(x, y) {
       $dlg.css({left: x + 'px', top: y + 'px'});
     };
@@ -836,7 +836,7 @@ var simcir = function($) {
     var body_mouseDownHandler = function(event) {
       event.preventDefault();
       event.stopPropagation();
-      var off = $scrollbar.parents('svg').offset();
+      var off = $scrollbar.parent('svg').offset();
       var pos = transform($scrollbar);
       var y = event.pageY - off.top - pos.y;
       var barPos = transform($bar);
