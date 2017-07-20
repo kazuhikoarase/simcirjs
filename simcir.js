@@ -23,6 +23,8 @@ var simcir = {};
 //
 simcir.$ = function() {
 
+  var debug = location.hash == '#debug';
+
   var cacheIdKey = '.lessqCacheId';
   var cacheIdSeq = 0;
   var cache = {};
@@ -31,31 +33,52 @@ simcir.$ = function() {
     var cacheId = elm[cacheIdKey];
     if (typeof cacheId == 'undefined') {
       elm[cacheIdKey] = cacheId = cacheIdSeq++;
-      cache[cacheId] = {};
+      cache[cacheId] = debug? { e : elm } : {};
     }
     return cache[cacheId];
   };
 
+  var hasCache = function(elm) {
+    return typeof elm[cacheIdKey] != 'undefined';
+  };
+
+  if (debug) {
+    var lastKeys = {};
+    var showCacheCount = function() {
+      var cnt = 0;
+      var keys = {};
+      for (var k in cache) {
+        cnt += 1;
+        if (!lastKeys[k]) {
+          console.log(cache[k]);
+        }
+        keys[k] = true;
+      }
+      lastKeys = keys;
+      console.log('cacheCount:' + cnt);
+      window.setTimeout(showCacheCount, 5000);
+    };
+    showCacheCount();
+  }
+
   var removeCache = function(elm) {
 
-    if (typeof elm[cacheIdKey] == 'undefined') {
-      // not attached.
-      return;
-    }
+    if (typeof elm[cacheIdKey] != 'undefined') {
 
-    // remove all listeners
-    var cacheId = elm[cacheIdKey];
-    var listenerMap = cache[cacheId].listenerMap;
-    for (var type in listenerMap) {
-      var listeners = listenerMap[type];
-      for (var i = 0; i < listeners.length; i += 1) {
-        elm.removeEventListener(type, listeners[i]);
+      // remove all listeners
+      var cacheId = elm[cacheIdKey];
+      var listenerMap = cache[cacheId].listenerMap;
+      for (var type in listenerMap) {
+        var listeners = listenerMap[type];
+        for (var i = 0; i < listeners.length; i += 1) {
+          elm.removeEventListener(type, listeners[i]);
+        }
       }
-    }
 
-    // delete refs
-    delete elm[cacheIdKey];
-    delete cache[cacheId];
+      // delete refs
+      delete elm[cacheIdKey];
+      delete cache[cacheId];
+    }
 
     while (elm.firstChild) {
       removeCache(elm.firstChild);
@@ -93,6 +116,7 @@ simcir.$ = function() {
   var trigger = function(elm, type, data) {
     var event = createEvent(type);
     for (;elm != null; elm = elm.parentNode) {
+      if (!hasCache(elm) ) { continue; }
       if (!getCache(elm).listenerMap) { continue; }
       if (!getCache(elm).listenerMap[type]) { continue; }
       var listeners = getCache(elm).listenerMap[type];
@@ -304,6 +328,15 @@ simcir.$ = function() {
         }
       }
       return lessQuery();
+    },
+    find : function(selector) {
+      var elms = [];
+      var childNodes = this.querySelectorAll(selector);
+      for (var i = 0; i < childNodes.length; i += 1) {
+        elms.push(childNodes.item(i) );
+      }
+      elms.__proto__ = fn;
+      return elms;
     },
     children : function(selector) {
       var elms = [];
@@ -835,6 +868,15 @@ simcir.$ = function() {
         });
       });
     };
+    device.$ui.on('dispose', function() {
+      $.each(getInputs(), function(i, inNode) {
+        inNode.$ui.remove();
+      });
+      $.each(getOutputs(), function(i, outNode) {
+        outNode.$ui.remove();
+      });
+      device.$ui.remove();
+    } );
 
     var selected = false;
     var setSelected = function(value) {
@@ -1103,6 +1145,7 @@ simcir.$ = function() {
     };
     $dlg.on('mousedown', dlg_mouseDownHandler);
     $closeButton.on('mousedown', function() {
+      $dlg.trigger('close');
       $dlg.remove();
       dialogManager.remove($dlg);
     });
@@ -1177,12 +1220,19 @@ simcir.$ = function() {
         var size = super_getSize();
         return {width: unit * 4, height: size.height};
       };
+      device.$ui.on('dispose', function() {
+        $.each($devs, function(i, $dev) {
+          $dev.trigger('dispose');
+        });
+      } );
       device.$ui.on('dblclick', function(event) {
         // open library,
         event.preventDefault();
         event.stopPropagation();
         showDialog(device.deviceDef.label || device.deviceDef.type,
-            setupSimcir($('<div></div>'), data) );
+            setupSimcir($('<div></div>'), data) ).on('close', function() {
+              $(this).find('.simcir-workspace').trigger('dispose');
+            });
       });
     };
   };
@@ -1338,7 +1388,13 @@ simcir.$ = function() {
 
     var $workspace = createSVG(
         workspaceWidth, workspaceHeight).
-      attr('class', 'simcir-workspace');
+      attr('class', 'simcir-workspace').
+      on('dispose', function() {
+        $(this).find('.simcir-device').trigger('dispose');
+        $toolboxPane.remove();
+        $workspace.remove();
+      });
+
     disableSelection($workspace);
 
     var $defs = createSVGElement('defs');
@@ -1411,7 +1467,7 @@ simcir.$ = function() {
       $dev.trigger('deviceRemove');
       // before remove, disconnect all
       controller($dev).disconnectAll();
-      $dev.remove();
+      $dev.trigger('dispose');
       updateConnectors();
     };
 
@@ -1608,7 +1664,7 @@ simcir.$ = function() {
           adjustDevice($dev);
           addDevice($dev);
         } else {
-          $dev.remove();
+          $dev.trigger('dispose');
         }
       };
     };
@@ -1765,7 +1821,17 @@ simcir.$ = function() {
     return $workspace;
   };
 
+  var clearSimcir = function($placeHolder) {
+    $placeHolder = $($placeHolder[0]);
+    $placeHolder.find('.simcir-workspace').trigger('dispose');
+    $placeHolder.children().remove();
+    return $placeHolder;
+  };
+
   var setupSimcir = function($placeHolder, data) {
+
+    $placeHolder = clearSimcir($placeHolder);
+
     var $workspace = simcir.createWorkspace(data);
     var $dataArea = $('<textarea></textarea>').
       addClass('simcir-json-data-area').
@@ -1884,6 +1950,7 @@ simcir.$ = function() {
 
   $.extend($s, {
     registerDevice: registerDevice,
+    clearSimcir: clearSimcir,
     setupSimcir: setupSimcir,
     createWorkspace: createWorkspace,
     createSVGElement: createSVGElement,

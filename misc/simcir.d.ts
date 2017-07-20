@@ -113,6 +113,7 @@ interface Simcir {
   controller($ui: JQuery) : any;
   registerDevice(type: string, factory: SimcirTypeFactory) : void;
   registerDevice(type: string, data: SimcirData) : void;
+  clearSimcir($placeHolder: JQuery) : JQuery;
   setupSimcir($placeHolder: JQuery, data: SimcirData) : JQuery;
   createWorkspace(data: SimcirData) : JQuery;
 }
