@@ -197,7 +197,7 @@
             {name: 'color', type: 'string',
               defaultValue: defaultDelayColor,
               description: 'color in hexadecimal.'}],
-          code: '{"type":"' + device.deviceDef.type + '"}'
+          code: '{"type":"' + device.deviceDef.type + '","delay":50}'
         };
       };
     };
