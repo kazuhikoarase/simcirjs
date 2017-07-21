@@ -182,14 +182,13 @@
 
         var $point = $s.createSVGElement('circle').
           css('pointer-events', 'none').css('opacity', 0).
-          attr({cx: unit / 2, cy: unit / 2, r: 2});
-        $s.addClass($point, 'simcir-connector');
-        $s.addClass($point, 'simcir-joint-point');
+          attr({cx: unit / 2, cy: unit / 2, r: 2}).
+          addClass('simcir-connector').addClass('simcir-joint-point');
         device.$ui.append($point);
 
         var $path = $s.createSVGElement('path').
-          css('pointer-events', 'none').css('opacity', 0);
-        $s.addClass($path, 'simcir-connector');
+          css('pointer-events', 'none').css('opacity', 0).
+          addClass('simcir-connector');
         device.$ui.append($path);
 
         var updateUI = function() {

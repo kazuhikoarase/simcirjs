@@ -113,8 +113,14 @@ simcir.$ = function() {
     return true;
   };
 
+  var CustomEvent = {
+    preventDefault : function() {},
+    stopPropagation : function() {},
+    stopImmediatePropagation : function() {}
+  };
+
   var trigger = function(elm, type, data) {
-    var event = createEvent(type);
+    var event = { type : type, target : elm, __proto__ : CustomEvent };
     for (;elm != null; elm = elm.parentNode) {
       if (!hasCache(elm) ) { continue; }
       if (!getCache(elm).listenerMap) { continue; }
@@ -198,18 +204,6 @@ simcir.$ = function() {
     }
     return false;
   };
-
-  var createEvent = function() {
-    return typeof window.CustomEvent == 'function'?
-      function(type) { // non IE
-        return new window.CustomEvent(type);
-      } :
-      function(type) { // IE
-        var event = document.createEvent('CustomEvent');
-        event.initCustomEvent(type, false, false, null);
-        return event;
-      };
-  }();
 
   // per element functions.
   var fn = {
@@ -516,43 +510,6 @@ simcir.$ = function() {
     };
   };
 
-  var eachClass = function($o, f) {
-    var className = $o.attr('class');
-    if (className) {
-      $.each(className.split(/\s+/g), f);
-    }
-  };
-
-  var addClass = function($o, className, remove) {
-    var newClass = '';
-    eachClass($o, function(i, c) {
-      if (!(remove && c == className) ) {
-        newClass += '\u0020';
-        newClass += c;
-      }
-    });
-    if (!remove) {
-      newClass += '\u0020';
-      newClass += className;
-    }
-    $o.attr('class', newClass);
-    return $o;
-  };
-
-  var removeClass = function($o, className) {
-    return addClass($o, className, true);
-  };
-
-  var hasClass = function($o, className) {
-    var found = false;
-    eachClass($o, function(i, c) {
-      if (c == className) {
-        found = true;
-      }
-    });
-    return found;
-  };
-
   var transform = function() {
     var attrX = 'simcir-transform-x';
     var attrY = 'simcir-transform-y';
@@ -700,12 +657,12 @@ simcir.$ = function() {
         attr({cx: 0, cy: 0, r: 4});
       node.$ui.on('mouseover', function(event) {
         if (isActiveNode(node.$ui) ) {
-          addClass(node.$ui, 'simcir-node-hover');
+          node.$ui.addClass('simcir-node-hover');
         }
       });
       node.$ui.on('mouseout', function(event) {
         if (isActiveNode(node.$ui) ) {
-          removeClass(node.$ui, 'simcir-node-hover');
+          node.$ui.removeClass('simcir-node-hover');
         }
       });
       node.$ui.append($circle);
@@ -740,9 +697,9 @@ simcir.$ = function() {
       }
       node.$ui.on('nodeValueChange', function(event) {
         if (_value != null) {
-          addClass(node.$ui, 'simcir-node-hot');
+          node.$ui.addClass('simcir-node-hot');
         } else {
-          removeClass(node.$ui, 'simcir-node-hot');
+          node.$ui.removeClass('simcir-node-hot');
         }
       });
     }
@@ -937,9 +894,9 @@ simcir.$ = function() {
       device.$ui.attr('class', 'simcir-device');
       device.$ui.on('deviceSelect', function() {
         if (selected) {
-          addClass($(this), 'simcir-device-selected');
+          $(this).addClass('simcir-device-selected');
         } else {
-          removeClass($(this), 'simcir-device-selected');
+          $(this).removeClass('simcir-device-selected');
         }
       });
 
@@ -1954,9 +1911,6 @@ simcir.$ = function() {
     setupSimcir: setupSimcir,
     createWorkspace: createWorkspace,
     createSVGElement: createSVGElement,
-    addClass: addClass,
-    removeClass: removeClass,
-    hasClass: hasClass,
     offset: offset,
     transform: transform,
     enableEvents: enableEvents,
@@ -2039,14 +1993,13 @@ simcir.$ = function() {
         $label.attr('y', $label.attr('y') - unit / 4);
 
         var $point = $s.createSVGElement('circle').
-          css('pointer-events', 'none').css('opacity', 0).attr('r', 2);
-        $s.addClass($point, 'simcir-connector');
-        $s.addClass($point, 'simcir-joint-point');
+          css('pointer-events', 'none').css('opacity', 0).attr('r', 2).
+          addClass('simcir-connector').addClass('simcir-joint-point');
         device.$ui.append($point);
 
         var $path = $s.createSVGElement('path').
-          css('pointer-events', 'none').css('opacity', 0);
-        $s.addClass($path, 'simcir-connector');
+          css('pointer-events', 'none').css('opacity', 0).
+          addClass('simcir-connector');
         device.$ui.append($path);
 
         var $title = $s.createSVGElement('title').
