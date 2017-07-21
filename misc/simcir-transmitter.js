@@ -1,5 +1,5 @@
 //
-// SimcirJS - transmitter
+// SimcirJS - Transmitter
 //
 // Copyright (c) 2016 Kazuhiko Arase
 //
