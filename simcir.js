@@ -114,21 +114,25 @@ simcir.$ = function() {
   };
 
   var CustomEvent = {
-    preventDefault : function() {},
-    stopPropagation : function() {},
-    stopImmediatePropagation : function() {}
+    preventDefault : function() { this._pD = true; },
+    stopPropagation : function() { this._sP = true; },
+    stopImmediatePropagation : function() { this._sIp = true; }
   };
 
   var trigger = function(elm, type, data) {
-    var event = { type : type, target : elm, __proto__ : CustomEvent };
-    for (;elm != null; elm = elm.parentNode) {
-      if (!hasCache(elm) ) { continue; }
-      if (!getCache(elm).listenerMap) { continue; }
-      if (!getCache(elm).listenerMap[type]) { continue; }
-      var listeners = getCache(elm).listenerMap[type];
+    var event = { type : type, target : elm, currentTarget : null,
+        _pD : false, _sP : false, _sIp : false, __proto__ : CustomEvent };
+    for (var e = elm; e != null; e = e.parentNode) {
+      if (!hasCache(e) ) { continue; }
+      if (!getCache(e).listenerMap) { continue; }
+      if (!getCache(e).listenerMap[type]) { continue; }
+      event.currentTarget = e;
+      var listeners = getCache(e).listenerMap[type];
       for (var i = 0; i < listeners.length; i += 1) {
-        listeners[i].call(elm, event, data);
+        listeners[i].call(e, event, data);
+        if (event._sIp) { return; }
       }
+      if (event._sP) { return; }
     }
   };
 
