@@ -2125,7 +2125,5 @@ simcir.$ = function() {
   $s.registerDevice('In', createPortFactory('in') );
   $s.registerDevice('Out', createPortFactory('out') );
   $s.registerDevice('Joint', createJointFactory() );
-  // deprecated.
-  $s.registerDevice('SmallBUF', createJointFactory(), true);
 
 }(simcir);
