@@ -1435,9 +1435,10 @@ simcir.$ = function() {
       append($toolboxDevicePane).
       append($scrollbar).on('wheel', function(event) {
         event.preventDefault();
-        if (event.originalEvent.deltaY < 0) {
+        var oe = event.originalEvent || event;
+        if (oe.deltaY < 0) {
           $scrollbar.trigger('unitup');
-        } else if (event.originalEvent.deltaY > 0) {
+        } else if (oe.deltaY > 0) {
           $scrollbar.trigger('unitdown');
         }
       });
