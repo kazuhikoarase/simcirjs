@@ -1866,11 +1866,13 @@ simcir.$ = function() {
           append($('<td>-</td>').
               css('text-align', 'center') ).
           append($('<td>"' + deviceDef.type + '"</td>') ) );
-      $paramsTable.children('tbody').append($('<tr></tr>').
-          append($('<td>label</td>') ).
-          append($('<td>string</td>') ).
-          append($('<td>same with type</td>').css('text-align', 'center') ).
-          append($('<td>label for a device.</td>') ) );
+      if (!doc.labelless) {
+        $paramsTable.children('tbody').append($('<tr></tr>').
+            append($('<td>label</td>') ).
+            append($('<td>string</td>') ).
+            append($('<td>same with type</td>').css('text-align', 'center') ).
+            append($('<td>label for a device.</td>') ) );
+      }
       if (doc.params) {
         $.each(doc.params, function(i, param) {
           $paramsTable.children('tbody').append($('<tr></tr>').
