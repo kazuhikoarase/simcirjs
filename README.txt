@@ -15,7 +15,6 @@ Web browser that supports HTML5
 -- Contents
 
 README.txt           -- this file
-jquery-2.1.1.min.js  -- jQuery javascript (required)
 simcir.js            -- Simcir core javascript (required)
 simcir.css           -- Simcir core stylesheet (required)
 simcir-basicset.js   -- Simcir basicset javascript (optional)
@@ -25,3 +24,4 @@ simcir-library.js    -- Simcir library javascript
 sample.html          -- sample of live circuit
 blank.html           -- blank template
 get_and_set.html     -- sample that get and set a circuit directly
+                        with jQuery

@@ -12,9 +12,11 @@
 // includes following device types:
 //  DSO
 
-!function($, $s) {
+!function($s) {
 
   'use strict';
+
+  var $ = $s.$;
 
   // unit size
   var unit = $s.unit;
@@ -397,4 +399,4 @@
 
   $s.registerDevice('DSO', createDSOFactory() );
 
-}(jQuery, simcir);
+}(simcir);

@@ -102,9 +102,6 @@ interface Simcir {
   unit: number;
   createSVGElement(tagName: string) : JQuery;
   graphics($target: JQuery) : SimcirGraphics;
-  addClass($o: JQuery, className: string) : JQuery;
-  removeClass($o: JQuery, className: string) : JQuery;
-  hasClass($o: JQuery, className: string) : boolean;
   offset($o: JQuery) : SimcirPoint;
   transform($o: JQuery, x: number, y: number, rotate: number) : void;
   transform($o: JQuery) : { x: number; y: number; rotate: number; };
@@ -113,6 +110,7 @@ interface Simcir {
   controller($ui: JQuery) : any;
   registerDevice(type: string, factory: SimcirTypeFactory) : void;
   registerDevice(type: string, data: SimcirData) : void;
+  clearSimcir($placeHolder: JQuery) : JQuery;
   setupSimcir($placeHolder: JQuery, data: SimcirData) : JQuery;
   createWorkspace(data: SimcirData) : JQuery;
 }
