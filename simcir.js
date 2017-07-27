@@ -189,19 +189,22 @@ simcir.$ = function() {
   };
 
   var matches = function(elm, selector) {
-    if (!selector) { return true; }
+    if (elm.nodeType != 1) {
+      return false;
+    } else if (!selector) {
+      return true;
+    }
     var sels = selector.split(/[,\s]+/g);
     for (var i = 0; i < sels.length; i += 1) {
       var sel = sels[i];
       if (sel.substring(0, 1) == '#') {
         throw 'not supported:' + sel;
       } else if (sel.substring(0, 1) == '.') {
-        if (elm.nodeType == 1 && hasClass(elm, sel.substring(1) ) ) {
+        if (hasClass(elm, sel.substring(1) ) ) {
           return true;
         }
       } else {
-        if (elm.nodeType == 1 &&
-            elm.tagName.toUpperCase() == sel.toUpperCase() ) {
+        if (elm.tagName.toUpperCase() == sel.toUpperCase() ) {
           return true;
         }
       }
@@ -209,7 +212,124 @@ simcir.$ = function() {
     return false;
   };
 
-  // per element functions.
+  var parser = new window.DOMParser();
+
+  var html = function(html) {
+    var doc = parser.parseFromString(
+        '<div xmlns="http://www.w3.org/1999/xhtml">' + html + '</div>',
+        'text/xml').firstChild;
+    var elms = [];
+    while (doc.firstChild) {
+      elms.push(doc.firstChild);
+      doc.removeChild(doc.firstChild);
+    }
+    elms.__proto__ = fn;
+    return elms;
+  };
+
+  var pxToNum = function(px) {
+    if (typeof px != 'string' || px.length <= 2 ||
+        px.charAt(px.length - 2) != 'p' ||
+        px.charAt(px.length - 1) != 'x') {
+      throw 'illegal px:' + px;
+    }
+    return +px.substring(0, px.length - 2);
+  };
+
+  var buildQuery = function(data) {
+    var query = '';
+    for (var k in data) {
+      if (query.length > 0) {
+        query += '&';
+      }
+      query += window.encodeURIComponent(k);
+      query += '=';
+      query += window.encodeURIComponent(data[k]);
+    }
+    return query;
+  };
+
+  var parseResponse = function() {
+
+    var contentType = this.getResponseHeader('content-type');
+    if (contentType != null) {
+      contentType = contentType.replace(/\s*;.+$/, '').toLowerCase();
+    }
+
+    if (contentType == 'text/xml' ||
+          contentType == 'application/xml') {
+      return parser.parseFromString(this.responseText, 'text/xml');
+    } else if (contentType == 'text/json' ||
+        contentType == 'application/json') {
+      return JSON.parse(this.responseText);
+    } else {
+      return this.response;
+    }
+  };
+
+  var ajax = function(params) {
+
+    params = extend({
+      url: '',
+      method : 'GET',
+      contentType : 'application/x-www-form-urlencoded;charset=UTF-8',
+      cache: true,
+      processData: true,
+      async : true
+    }, params);
+
+    if (!params.async) {
+      // force async.
+      throw 'not supported.';
+    }
+
+    var method = params.method.toUpperCase();
+    var data = null;
+    var contentType = params.contentType;
+    if (method == 'POST' || method == 'PUT') {
+      data = (typeof params.data == 'object' && params.processData)?
+          buildQuery(params.data) : params.data;
+    } else {
+      contentType = false;
+    }
+
+    var xhr = params.xhr? params.xhr() : new window.XMLHttpRequest();
+    xhr.open(method, params.url, params.async);
+    if (contentType !== false) {
+      xhr.setRequestHeader('Content-Type', contentType);
+    }
+    xhr.onreadystatechange = function() {
+      if(xhr.readyState == window.XMLHttpRequest.DONE) {
+        try {
+          if (xhr.status == 200) {
+            done.call(xhr, parseResponse.call(this) );
+          } else {
+            fail.call(xhr);
+          }
+        } finally {
+          always.call(xhr);
+        }
+      }
+    };
+
+    // call later
+    window.setTimeout(function() { xhr.send(data); }, 0);
+
+    // callbacks
+    var done = function(data) {};
+    var fail = function() {};
+    var always = function() {};
+
+    var $ = {
+      done : function(callback) { done = callback; return $; },
+      fail : function(callback) { fail = callback; return $; },
+      always : function(callback) { always = callback; return $; },
+      abort : function() { xhr.abort(); return $; }
+    };
+    return $;
+  };
+
+  // 1. for single element
   var fn = {
     attr : function(kv) {
       if (arguments.length == 1) {
@@ -296,12 +416,18 @@ simcir.$ = function() {
       return off;
     },
     append : function(elms) {
+      if (typeof elms == 'string') {
+        elms = html(elms);
+      }
       for (var i = 0; i < elms.length; i += 1) {
         this.appendChild(elms[i]);
       }
       return this;
     },
     prepend : function(elms) {
+      if (typeof elms == 'string') {
+        elms = html(elms);
+      }
       for (var i = 0; i < elms.length; i += 1) {
         if (this.firstChild) {
           this.insertBefore(elms[i], this.firstChild);
@@ -335,15 +461,15 @@ simcir.$ = function() {
       return this;
     },
     parent : function() {
-      return lessQuery(this.parentNode);
+      return $(this.parentNode);
     },
     closest : function(selector) {
       for (var e = this; e != null; e = e.parentNode) {
         if (matches(e, selector) ) {
-          return lessQuery(e);
+          return $(e);
         }
       }
-      return lessQuery();
+      return $();
     },
     find : function(selector) {
       var elms = [];
@@ -365,9 +491,14 @@ simcir.$ = function() {
       elms.__proto__ = fn;
       return elms;
     },
-    clone : function() { return lessQuery(this.cloneNode(true) ); },
+    index : function(selector) {
+      return Array.prototype.indexOf.call(
+          $(this).parent().children(selector), this);
+    },
+    clone : function() { return $(this.cloneNode(true) ); },
     focus : function() { this.focus(); return this; },
     select : function() { this.select(); return this; },
+    submit : function() { this.submit(); return this; },
     scrollLeft : function() {
       if (arguments.length == 0) return this.scrollLeft;
       this.scrollLeft = arguments[0]; return this;
@@ -389,8 +520,46 @@ simcir.$ = function() {
         this.innerText = arguments[0]; return this;
       }
     },
-    width : function() { return this.offsetWidth || this.innerWidth || 0; },
-    height : function() { return this.offsetHeight || this.innerHeight || 0; },
+    outerWidth : function(margin) {
+      var w = this.offsetWidth;
+      if (margin) {
+        var cs = window.getComputedStyle(this, null);
+        return w + pxToNum(cs.marginLeft) + pxToNum(cs.marginRight);
+      }
+      return w;
+    },
+    innerWidth : function() {
+      var cs = window.getComputedStyle(this, null);
+      return this.offsetWidth -
+        pxToNum(cs.borderLeftWidth) - pxToNum(cs.borderRightWidth);
+    },
+    width : function() {
+      if (this == window) return this.innerWidth;
+      var cs = window.getComputedStyle(this, null);
+      return this.offsetWidth -
+        pxToNum(cs.borderLeftWidth) - pxToNum(cs.borderRightWidth) -
+        pxToNum(cs.paddingLeft) - pxToNum(cs.paddingRight);
+    },
+    outerHeight : function(margin) {
+      var h = this.offsetHeight;
+      if (margin) {
+        var cs = window.getComputedStyle(this, null);
+        return h + pxToNum(cs.marginTop) + pxToNum(cs.marginBottom);
+      }
+      return h;
+    },
+    innerHeight : function() {
+      var cs = window.getComputedStyle(this, null);
+      return this.offsetHeight -
+        pxToNum(cs.borderTopWidth) - pxToNum(cs.borderBottomWidth);
+    },
+    height : function() {
+      if (this == window) return this.innerHeight;
+      var cs = window.getComputedStyle(this, null);
+      return this.offsetHeight -
+        pxToNum(cs.borderTopWidth) - pxToNum(cs.borderBottomWidth) -
+        pxToNum(cs.paddingTop) - pxToNum(cs.paddingBottom);
+    },
     addClass : function(className) {
       addClass(this, className, true); return this;
     },
@@ -402,7 +571,7 @@ simcir.$ = function() {
     }
   };
 
-  // to array
+  // 2. to array
   each(fn, function(name, func) {
     fn[name] = function() {
       var newRet = null;
@@ -426,20 +595,27 @@ simcir.$ = function() {
     };
   });
 
-  fn.each = function(callback) {
-    for (var i = 0; i < this.length; i += 1) {
-      callback.call(this[i], i);
+  // 3. for array
+  fn = extend(fn, {
+    each : function(callback) {
+      for (var i = 0; i < this.length; i += 1) {
+        callback.call(this[i], i);
+      }
+      return this;
+    },
+    first : function() {
+      return $(this.length > 0? this[0] : null);
+    },
+    last : function() {
+      return $(this.length > 0? this[this.length - 1] : null);
     }
-    return this;
-  };
+  });
 
-  var parser = new window.DOMParser();
-
-  var lessQuery = function(target) {
+  var $ = function(target) {
 
     if (typeof target == 'function') {
       // ready
-      return lessQuery(document).on('DOMContentLoaded', target);
+      return $(document).on('DOMContentLoaded', target);
     }
 
     if (!target) {
@@ -451,16 +627,7 @@ simcir.$ = function() {
       if (target.charAt(0) == '<') {
 
         // dom creation
-        var doc = parser.parseFromString(
-            '<div xmlns="http://www.w3.org/1999/xhtml">' + target + '</div>',
-            'text/xml').firstChild;
-        var elms = [];
-        while (doc.firstChild) {
-          elms.push(doc.firstChild);
-          doc.removeChild(doc.firstChild);
-        }
-        elms.__proto__ = fn;
-        return elms;
+        return html(target);
 
       } else {
 
@@ -491,8 +658,9 @@ simcir.$ = function() {
     return elms;
   };
 
-  return extend(lessQuery, {
-    extend : extend, each : each, grep : grep, data : data, fn : fn });
+  return extend($, {
+    fn : fn, extend : extend, each : each, grep : grep,
+    data : data, ajax : ajax });
 }();
 
 !function($s) {
