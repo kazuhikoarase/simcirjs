@@ -1551,9 +1551,21 @@ simcir.$ = function() {
     var barWidth = unit;
     var toolboxWidth = data.showToolbox? unit * 6 + barWidth : 0;
 
+    var connectorsValid = true;
+    var connectorsValidator = function() {
+      if (!connectorsValid) {
+        updateConnectors();
+        connectorsValid = true;
+      }
+    };
+
     var $workspace = createSVG(
         workspaceWidth, workspaceHeight).
       attr('class', 'simcir-workspace').
+      on('nodeValueChange', function(event) {
+        connectorsValid = false;
+        window.setTimeout(connectorsValidator, 0);
+      }).
       on('dispose', function() {
         $(this).find('.simcir-device').trigger('dispose');
         $toolboxPane.remove();
@@ -1653,8 +1665,11 @@ simcir.$ = function() {
           if (inNode.getOutput() != null) {
             var p1 = offset(inNode.$ui);
             var p2 = offset(inNode.getOutput().$ui);
-            $connectorPane.append(
-                createConnector(p1.x, p1.y, p2.x, p2.y) );
+            var $conn = createConnector(p1.x, p1.y, p2.x, p2.y);
+            if (inNode.getOutput().getValue() != null) {
+              $conn.addClass('simcir-connector-hot');
+            }
+            $connectorPane.append($conn);
           }
         });
       });

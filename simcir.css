@@ -48,6 +48,10 @@
   stroke-linecap: round;
 }
 
+.simcir-connector-hot {
+  /* stroke: #ff0000; */
+}
+
 .simcir-joint-point {
   stroke-width: 3;
 }
