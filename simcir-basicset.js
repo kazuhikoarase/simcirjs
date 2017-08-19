@@ -661,7 +661,7 @@
     var super_createUI = device.createUI;
     device.createUI = function() {
       super_createUI();
-      device.$ui.addClass('simcir-basicset-osc');
+      device.$ui.addClass('simcir-basicset-dc');
     };
     device.$ui.on('deviceAdd', function() {
       device.getOutputs()[0].setValue(onValue);
@@ -749,7 +749,7 @@
     var super_createUI = device.createUI;
     device.createUI = function() {
       super_createUI();
-      device.$ui.addClass('simcir-basicset-dc');
+      device.$ui.addClass('simcir-basicset-osc');
       device.doc = {
         params: [
           {name: 'freq', type: 'number', defaultValue: '10',
