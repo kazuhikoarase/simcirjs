@@ -1318,8 +1318,11 @@ simcir.$ = function() {
     var h = $dlg.height();
     var cw = $(window).width();
     var ch = $(window).height();
-    var x = (cw - w) / 2 + $(document.body).scrollLeft();
-    var y = (ch - h) / 2 + $(document.body).scrollTop();
+    var getProp = function(id) {
+      return $('HTML')[id]() || $('BODY')[id]();
+    };
+    var x = (cw - w) / 2 + getProp('scrollLeft');
+    var y = (ch - h) / 2 + getProp('scrollTop');
     var moveTo = function(x, y) {
       $dlg.css({left: x + 'px', top: y + 'px'});
     };
@@ -1539,6 +1542,7 @@ simcir.$ = function() {
       width: 400,
       height: 200,
       showToolbox: true,
+      editable: true,
       toolbox: defaultToolbox,
       devices: [],
       connectors: [],
@@ -1951,6 +1955,9 @@ simcir.$ = function() {
       event.preventDefault();
       event.stopPropagation();
       var $target = $(event.target);
+      if (!data.editable) {
+        return;
+      }
       if (isActiveNode($target) ) {
         beginConnect(event, $target);
       } else if ($target.closest('.simcir-device').length == 1) {

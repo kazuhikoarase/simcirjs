@@ -92,6 +92,7 @@ interface SimcirData {
   height: number;
   toolbox: SimcirDeviceDef[];
   showToolbox: boolean;
+  editable: boolean;
   devices: SimcirDeviceInstance[];
   connectors: SimcirConnectorDef[];
 }
