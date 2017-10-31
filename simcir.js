@@ -1121,9 +1121,12 @@ simcir.$ = function() {
       });
 
       var label_dblClickHandler = function(event) {
-        // open library,
         event.preventDefault();
         event.stopPropagation();
+        var $workspace = $(event.target).closest('.simcir-workspace');
+        if (!controller($workspace).data().editable) {
+          return;
+        }
         var title = 'Enter device name ';
         var $labelEditor = $('<input type="text"/>').
           addClass('simcir-label-editor').
@@ -1744,6 +1747,7 @@ simcir.$ = function() {
         width: data.width,
         height: data.height,
         showToolbox: data.showToolbox,
+        editable: data.editable,
         toolbox: toolbox,
         devices: devices,
         connectors: connectors
