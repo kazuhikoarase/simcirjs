@@ -14,6 +14,8 @@
 
 !function($s) {
 
+  'use strict';
+
   var $ = $s.$;
 
   // unit size
@@ -176,7 +178,7 @@
             $(this).off('mouseout', device_mouseoutHandler).
               off('dblclick', device_dblclickHandler);
             $title.remove();
-            // hide a label
+            // show a label
             $label.css('display', '');
           }).on('deviceSelect', function() {
             if (device.isSelected() ) {
