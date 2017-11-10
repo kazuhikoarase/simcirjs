@@ -44,6 +44,9 @@
   var defaultLEDColor = '#ff0000';
   var defaultLEDBgColor = '#000000';
 
+  // white
+  var defaultLogicalLabelColor = '#ffffff';
+
   var multiplyColor = function() {
     var HEX = '0123456789abcdef';
     var toIColor = function(sColor) {
@@ -154,6 +157,44 @@
   var isHot = function(v) { return v != null; };
   var intValue = function(v) { return isHot(v)? 1 : 0; };
 
+  var createLogicalLabel = function(size) {
+    var $label = $s.createSVGElement('g').
+      css('pointer-events', 'none').
+      attr('fill', 'none').
+      attr('stroke-width', '2');
+    $s.transform($label, size.width / 2, size.height / 2);
+    var lsize = Math.min(size.width / 2, size.height / 2);
+    var ratio = 0.65;
+    $s.controller($label, {
+      setOn : function(on) {
+        $label.children().remove();
+        if (on) {
+          var w = lsize / 2 * ratio * 0.5;
+          var x = w * 0.2;
+          $label.append($s.createSVGElement('path').
+              attr('d',
+                  'M' + x + ' ' + (lsize / 2 * ratio) +
+                  'L ' + x + ' ' + -lsize / 2 * ratio +
+                  'Q' + (x - lsize / 2 * ratio * 0.125) +
+                  ' ' + (-lsize / 2 * ratio * 0.6) +
+                  ' ' + (x - w) +
+                  ' ' + (-lsize / 2 * ratio * 0.5) ).
+              attr('stroke-linecap' , 'square').
+              attr('stroke-linejoin' , 'round') );
+        } else {
+          $label.append($s.createSVGElement('ellipse').
+              attr({ cx : 0, cy : 0,
+                rx : lsize / 2 * ratio * 0.6, ry : lsize / 2 * ratio}).
+              attr('fill', 'none') );
+        }
+      },
+      setColor : function(color) {
+        $label.attr('stroke', color);
+      }
+    });
+    return $label;
+  };
+
   var createSwitchFactory = function(type) {
     return function(device) {
       var in1 = device.addInput();
@@ -181,6 +222,7 @@
       device.createUI = function() {
         super_createUI();
         var size = device.getSize();
+        var displayNumbers = !!device.deviceDef.displayNumbers;
         var $button = $s.createSVGElement('rect').
           attr({x: size.width / 4, y: size.height / 4,
             width: size.width / 2, height: size.height / 2,
@@ -190,6 +232,17 @@
           $button.addClass('simcir-basicset-switch-button-pressed');
         }
         device.$ui.append($button);
+        if (displayNumbers) {
+          var $label = createLogicalLabel(size);
+          $s.controller($label).setColor(defaultLogicalLabelColor);
+          $s.controller($label).setOn(isHot(out1.getValue() ) );
+          device.$ui.append($label);
+          var out1_setValue = out1.setValue;
+          out1.setValue = function(value) {
+            out1_setValue(value);
+            $s.controller($label).setOn(isHot(out1.getValue() ) );
+          };
+        }
         var button_mouseDownHandler = function(event) {
           event.preventDefault();
           event.stopPropagation();
@@ -683,6 +736,7 @@
       var bLoColor = multiplyColor(hiColor, bgColor, 0.2);
       var bHiColor = multiplyColor(hiColor, bgColor, 0.8);
       var size = device.getSize();
+      var displayNumbers = !!device.deviceDef.displayNumbers;
       var $ledbase = $s.createSVGElement('circle').
         attr({cx: size.width / 2, cy: size.height / 2, r: size.width / 4}).
         attr('stroke', 'none').
@@ -693,6 +747,15 @@
         attr('stroke', 'none').
         attr('fill', loColor);
       device.$ui.append($led);
+      if (displayNumbers) {
+        var $label = createLogicalLabel(size);
+        $s.controller($label).setColor(defaultLogicalLabelColor);
+        $s.controller($label).setOn(false);
+        device.$ui.append($label);
+        device.$ui.on('inputValueChange', function() {
+          $s.controller($label).setOn(isHot(in1.getValue() ) );
+        });
+      }
       device.$ui.on('inputValueChange', function() {
         $ledbase.attr('fill', isHot(in1.getValue() )? bHiColor : bLoColor);
         $led.attr('fill', isHot(in1.getValue() )? hiColor : loColor);
