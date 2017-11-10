@@ -71,7 +71,7 @@
       var out1 = type == 'src'? device.addOutput() : null;
 
       var on = false;
-      var updateOutput = function() {};
+      var updateOutput = null;
 
       if (type == 'src') {
         if (device.deviceDef.state) {
@@ -101,10 +101,10 @@
 
         var $label = device.$ui.children('.simcir-device-label');
         var size = device.getSize();
-        var $button = null;
 
+        var $button = null;
         if (type == 'src') {
-          $button = $s.createSVGElement('rect').css('opacity', 0).
+          $button = $s.createSVGElement('rect').
             attr({x: size.width / 4, y: 1,
               width: size.width / 2, height: size.height - 2,
               rx: 2, ry: 2, stroke: 'none', fill: '#999999'});
@@ -145,8 +145,7 @@
 
         if (type == 'src') {
           $s.controller($numLabel).setOn(out1.getValue() != null);
-        }
-        if (type == 'dsp') {
+        } else if (type == 'dsp') {
           $s.controller($numLabel).setOn(false);
           device.$ui.on('inputValueChange', function() {
             $s.controller($numLabel).setOn(in1.getValue() != null);
