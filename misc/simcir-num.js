@@ -107,7 +107,7 @@
           $button = $s.createSVGElement('rect').
             attr({x: size.width / 4, y: 1,
               width: size.width / 2, height: size.height - 2,
-              rx: 2, ry: 2, stroke: 'none', fill: '#999999'});
+              rx: 2, ry: 2, stroke: 'none', fill: '#aaaaaa'});
           device.$ui.append($button);
           var button_mouseDownHandler = function(event) {
             event.preventDefault();
