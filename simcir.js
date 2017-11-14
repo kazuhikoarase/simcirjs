@@ -1767,7 +1767,8 @@ simcir.$ = function() {
       };
       var printArray = function(array) {
         $.each(array, function(i, item) {
-          println('    ' + JSON.stringify(item) +
+          println('    ' + JSON.stringify(item).
+                replace(/</g, '\\u003c').replace(/>/g, '\\u003e') +
               (i + 1 < array.length? ',' : '') );
         });
       };
