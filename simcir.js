@@ -2163,6 +2163,8 @@ simcir.$ = function() {
 //
 !function($s) {
 
+  'use strict';
+
   var $ = $s.$;
 
   // unit size
@@ -2311,15 +2313,21 @@ simcir.$ = function() {
           }, fadeTimeout);
         };
 
+        var isEditable = function($dev) {
+          var $workspace = $dev.closest('.simcir-workspace');
+          return !!$s.controller($workspace).data().editable;
+        };
         var device_mouseoutHandler = function(event) {
+          if (!isEditable($(event.target) ) ) {
+            return;
+          }
           if (!device.isSelected() ) {
             fadeCount = maxFadeCount;
             fadeout();
           }
         };
         var device_dblclickHandler = function(event) {
-          var $workspace = $(event.target).closest('.simcir-workspace');
-          if (!$s.controller($workspace).data().editable) {
+          if (!isEditable($(event.target) ) ) {
             return;
           }
           state.direction = (state.direction + 1) % 4;
@@ -2329,6 +2337,10 @@ simcir.$ = function() {
         };
 
         device.$ui.on('mouseover', function(event) {
+            if (!isEditable($(event.target) ) ) {
+              $title.text('');
+              return;
+            }
             setOpacity(1);
             fadeCount = 0;
           }).on('deviceAdd', function() {
@@ -2343,7 +2355,7 @@ simcir.$ = function() {
             $(this).off('mouseout', device_mouseoutHandler).
               off('dblclick', device_dblclickHandler);
             $title.remove();
-            // hide a label
+            // show a label
             $label.css('display', '');
           }).on('deviceSelect', function() {
             if (device.isSelected() ) {

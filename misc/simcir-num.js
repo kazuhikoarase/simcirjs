@@ -122,7 +122,8 @@
         if (type == 'src') {
           $button = $s.createSVGElement('rect').
             attr({x: 1, y: 1, width: size.width - 2, height: size.height - 2,
-              rx: 2, ry: 2, stroke: 'none', fill: '#cccccc'});
+              rx: 2, ry: 2, stroke: 'none', fill: '#cccccc'}).
+            append($s.createSVGElement('title') );
           device.$ui.append($button);
           var button_mouseDownHandler = function(event) {
             event.preventDefault();
@@ -131,6 +132,10 @@
             updateOutput();
             $(document).on('mouseup', button_mouseUpHandler);
             $(document).on('touchend', button_mouseUpHandler);
+          };
+          var button_dblClickHandler = function(event) {
+            event.preventDefault();
+            event.stopPropagation();
           };
           var button_mouseUpHandler = function(event) {
             updateOutput();
@@ -141,11 +146,13 @@
             $s.enableEvents($button, true);
             $button.on('mousedown', button_mouseDownHandler);
             $button.on('touchstart', button_mouseDownHandler);
+            $button.on('dblclick', button_dblClickHandler);
           });
           device.$ui.on('deviceRemove', function() {
             $s.enableEvents($button, false);
             $button.off('mousedown', button_mouseDownHandler);
             $button.off('touchstart', button_mouseDownHandler);
+            $button.off('dblclick', button_dblClickHandler);
           });
           var out1_setValue = out1.setValue;
           out1.setValue = function(value) {
@@ -257,15 +264,21 @@
           }, fadeTimeout);
         };
 
+        var isEditable = function($dev) {
+          var $workspace = $dev.closest('.simcir-workspace');
+          return !!$s.controller($workspace).data().editable;
+        };
         var device_mouseoutHandler = function(event) {
+          if (!isEditable($(event.target) ) ) {
+            return;
+          }
           if (!device.isSelected() ) {
             fadeCount = maxFadeCount;
             fadeout();
           }
         };
         var device_dblclickHandler = function(event) {
-          var $workspace = $(event.target).closest('.simcir-workspace');
-          if (!$s.controller($workspace).data().editable) {
+          if (!isEditable($(event.target) ) ) {
             return;
           }
           direction = (direction + 1) % 4;
@@ -275,6 +288,10 @@
         };
 
         device.$ui.on('mouseover', function(event) {
+            if (!isEditable($(event.target) ) ) {
+              $title.text('');
+              return;
+            }
             setOpacity(1);
             fadeCount = 0;
           }).on('deviceAdd', function() {
