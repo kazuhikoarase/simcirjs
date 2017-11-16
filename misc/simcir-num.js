@@ -28,7 +28,7 @@
       attr('fill', 'none').
       attr('stroke-width', '2');
     $s.transform($label, size.width / 2, size.height / 2);
-    var lsize = Math.max(size.width / 2, size.height / 2);
+    var lsize = Math.max(size.width, size.height);
     var ratio = 0.65;
     $s.controller($label, {
       setOn : function(on) {
@@ -65,6 +65,8 @@
     var maxFadeCount = 16;
     var fadeTimeout = 100;
 
+    var Direction = { WE : 0, NS : 1, EW : 2, SN : 3 };
+
     return function(device) {
 
       var in1 = type == 'dsp'? device.addInput() : null;
@@ -73,12 +75,20 @@
       var on = false;
       var updateOutput = null;
 
+      var direction = null;
+      if (device.deviceDef.state) {
+        direction = device.deviceDef.state.direction;
+      }
+      if (typeof direction != 'number') {
+        direction = type == 'src'? Direction.WE : Direction.EW;
+      }
+
       if (type == 'src') {
         if (device.deviceDef.state) {
           on = device.deviceDef.state.on;
         }
         device.getState = function() {
-          return { on : on };
+          return { direction : direction, on : on };
         };
         device.$ui.on('inputValueChange', function() {
           if (on) {
@@ -89,10 +99,14 @@
           out1.setValue(on? 1 : null);
         };
         updateOutput();
+      } else if (type == 'dsp') {
+        device.getState = function() {
+          return { direction : direction };
+        };
       }
 
       device.getSize = function() {
-        return { width : unit * 2, height : unit };
+        return { width : unit, height : unit };
       };
 
       var super_createUI = device.createUI;
@@ -107,8 +121,7 @@
         var $button = null;
         if (type == 'src') {
           $button = $s.createSVGElement('rect').
-            attr({x: size.width / 4, y: 1,
-              width: size.width / 2, height: size.height - 2,
+            attr({x: 1, y: 1, width: size.width - 2, height: size.height - 2,
               rx: 2, ry: 2, stroke: 'none', fill: '#cccccc'});
           device.$ui.append($button);
           var button_mouseDownHandler = function(event) {
@@ -157,14 +170,10 @@
         var $path = $s.createSVGElement('path').
           css('pointer-events', 'none').css('opacity', 0).
           addClass('simcir-connector');
-        !function() {
-          var x0 = type == 'dsp'? 0 : size.width - unit / 2;
-          var y0 = size.height / 2;
-          var x1 = type == 'src'? size.width : unit / 2;
-          var y1 = size.height / 2;
-          $path.attr('d', 'M' + x0 + ' ' + y0 + 'L' + x1 + ' ' + y1);
-        }();
         device.$ui.append($path);
+
+        var $title = $s.createSVGElement('title').
+          text('Double-Click to change a direction.');
 
         if (type == 'src') {
 
@@ -191,6 +200,41 @@
             updatePoint();
           };
         }
+
+        var updateUI = function() {
+          var x0, y0, x1, y1;
+          x0 = y0 = x1 = y1 = unit / 2;
+          var d = unit / 2;
+          if (direction == Direction.WE) {
+            x0 += d;
+            x1 += unit;
+          } else if (direction == Direction.NS) {
+            y0 += d * 1.25;
+            y1 += unit;
+          } else if (direction == Direction.EW) {
+            x0 -= d;
+            x1 -= unit;
+          } else if (direction == Direction.SN) {
+            y0 -= d * 1.25;
+            y1 -= unit;
+          }
+          $path.attr('d', 'M' + x0 + ' ' + y0 + 'L' + x1 + ' ' + y1);
+          if (type == 'src') {
+            $s.transform(out1.$ui, x1, y1);
+            $point.attr({cx : x1, cy : y1});
+          } else if (type == 'dsp') {
+            $s.transform(in1.$ui, x1, y1);
+          }
+          if (direction == Direction.EW || direction == Direction.WE) {
+            device.$ui.children('.simcir-device-body').
+              attr({x: -unit / 2, y: 0, width: unit * 2, height: unit});
+          } else {
+            device.$ui.children('.simcir-device-body').
+              attr({x: 0, y: -unit / 2, width: unit, height: unit * 2});
+          }
+        };
+
+        updateUI();
 
         // fadeout a body.
         var fadeCount = 0;
@@ -219,6 +263,16 @@
             fadeout();
           }
         };
+        var device_dblclickHandler = function(event) {
+          var $workspace = $(event.target).closest('.simcir-workspace');
+          if (!$s.controller($workspace).data().editable) {
+            return;
+          }
+          direction = (direction + 1) % 4;
+          updateUI();
+          // update connectors.
+          $(this).trigger('mousedown').trigger('mouseup');
+        };
 
         device.$ui.on('mouseover', function(event) {
             setOpacity(1);
@@ -227,11 +281,14 @@
             if ($(this).closest('BODY').length == 0) {
               setOpacity(0);
             }
-            $(this).on('mouseout', device_mouseoutHandler);
+            $(this).append($title).on('mouseout', device_mouseoutHandler).
+              on('dblclick', device_dblclickHandler);
             // hide a label
             $label.css('display', 'none');
           }).on('deviceRemove', function() {
-            $(this).off('mouseout', device_mouseoutHandler);
+            $(this).off('mouseout', device_mouseoutHandler).
+              off('dblclick', device_dblclickHandler);
+            $title.remove();
             // show a label
             $label.css('display', '');
           }).on('deviceSelect', function() {

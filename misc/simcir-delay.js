@@ -157,6 +157,10 @@
           }
         };
         var device_dblclickHandler = function(event) {
+          var $workspace = $(event.target).closest('.simcir-workspace');
+          if (!$s.controller($workspace).data().editable) {
+            return;
+          }
           state.direction = (state.direction + 1) % 4;
           updateUI();
           // update connectors.
