@@ -1408,11 +1408,141 @@ simcir.$ = function() {
     };
   };
 
+  var createCustomLayoutDeviceRefFactory = function(data) {
+    return function(device) {
+      var $devs = buildCircuit(data, true, {});
+      var $ports = [];
+      var intfs = [];
+      $.each($devs, function(i, $dev) {
+        var deviceDef = controller($dev).deviceDef;
+        if (deviceDef.type == 'In' || deviceDef.type == 'Out') {
+          $ports.push($dev);
+        }
+      });
+      var getDesc = function(port) {
+        return port? port.description : '';
+      };
+      $.each($ports, function(i, $port) {
+        var port = controller($port);
+        var portDef = port.deviceDef;
+        var inPort;
+        var outPort;
+        if (portDef.type == 'In') {
+          outPort = port.getOutputs()[0];
+          inPort = device.addInput();
+          intfs.push({ node : inPort, label : portDef.label,
+              desc : getDesc(outPort.getInputs()[0]) });
+          // force disconnect test devices that connected to In-port
+          var inNode = port.getInputs()[0];
+          if (inNode.getOutput() != null) {
+            inNode.getOutput().disconnectFrom(inNode);
+          }
+        } else if (portDef.type == 'Out') {
+          inPort = port.getInputs()[0];
+          outPort = device.addOutput();
+          intfs.push({ node : outPort, label : portDef.label,
+              desc : getDesc(inPort.getOutput() ) });
+          // force disconnect test devices that connected to Out-port
+          var outNode = port.getOutputs()[0];
+          $.each(outNode.getInputs(), function(i, inNode) {
+            if (inNode.getOutput() != null) {
+              inNode.getOutput().disconnectFrom(inNode);
+            }
+          } );
+        }
+        inPort.$ui.on('nodeValueChange', function() {
+          outPort.setValue(inPort.getValue() );
+        });
+      });
+      var layout = data.layout;
+      var cols = layout.cols;
+      var rows = layout.rows;
+      rows = ~~( (Math.max(1, rows) + 1) / 2) * 2;
+      cols = ~~( (Math.max(1, cols) + 1) / 2) * 2;
+      var updateIntf = function(intf, x, y, align) {
+        transform(intf.node.$ui, x, y);
+        if (!intf.$label) {
+          intf.$label = createLabel(intf.label).
+            attr('class', 'simcir-node-label');
+          enableEvents(intf.$label, false);
+          intf.node.$ui.append(intf.$label);
+        }
+        if (align == 'right') {
+          intf.$label.attr('text-anchor', 'start').
+            attr('x', 6).
+            attr('y', fontSize / 2);
+        } else if (align == 'left') {
+          intf.$label.attr('text-anchor', 'end').
+            attr('x', -6).
+            attr('y', fontSize / 2);
+        } else if (align == 'top') {
+          intf.$label.attr('text-anchor', 'middle').
+            attr('x', 0).
+            attr('y', -6);
+        } else if (align == 'bottom') {
+          intf.$label.attr('text-anchor', 'middle').
+            attr('x', 0).
+            attr('y', fontSize + 6);
+        }
+      };
+      var doLayout = function() {
+        var x = 0;
+        var y = 0;
+        var w = unit * cols / 2;
+        var h = unit * rows / 2;
+        device.$ui.children('.simcir-device-label').
+          attr({y : y + h + fontSize});
+        device.$ui.children('.simcir-device-body').
+          attr({x: x, y: y, width: w, height: h});
+        $.each(intfs, function(i, intf) {
+          if (layout.nodes[intf.label] &&
+              layout.nodes[intf.label].match(/^([NSWE])([0-9]+)$/) ) {
+            var off = +RegExp.$2 * unit / 2;
+            switch(RegExp.$1) {
+            case 'N' : updateIntf(intf, x + off, y, 'bottom'); break;
+            case 'S' : updateIntf(intf, x + off, y + h, 'top'); break;
+            case 'W' : updateIntf(intf, x, y + off, 'right'); break;
+            case 'E' : updateIntf(intf, x + w, y + off, 'left'); break;
+            }
+          } else {
+            transform(intf.node.$ui, 0, 0);
+          }
+        });
+      };
+      device.getSize = function() {
+        return {width: unit * cols / 2, height: unit * rows / 2};
+      };
+      device.$ui.on('dispose', function() {
+        $.each($devs, function(i, $dev) {
+          $dev.trigger('dispose');
+        });
+      } );
+      device.$ui.on('dblclick', function(event) {
+        // open library,
+        event.preventDefault();
+        event.stopPropagation();
+        showDialog(device.deviceDef.label || device.deviceDef.type,
+            setupSimcir($('<div></div>'), data) ).on('close', function() {
+              $(this).find('.simcir-workspace').trigger('dispose');
+            });
+      });
+      var super_createUI = device.createUI;
+      device.createUI = function() {
+        super_createUI();
+        doLayout();
+      };
+    };
+  };
+
   var factories = {};
   var defaultToolbox = [];
   var registerDevice = function(type, factory, deprecated) {
     if (typeof factory == 'object') {
-      factory = createDeviceRefFactory(factory);
+      if (typeof factory.layout == 'object') {
+        factory = createCustomLayoutDeviceRefFactory(factory);
+      } else {
+        factory = createDeviceRefFactory(factory);
+      }
     }
     factories[type] = factory;
     if (!deprecated) {
