@@ -12,7 +12,7 @@
 //
 
 // includes following device types:
-//  FullAdder
+//  AltFullAdder
 
 simcir.registerDevice('AltFullAdder',
 {
