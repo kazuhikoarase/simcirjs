@@ -1496,13 +1496,13 @@ simcir.$ = function() {
           attr({x: x, y: y, width: w, height: h});
         $.each(intfs, function(i, intf) {
           if (layout.nodes[intf.label] &&
-              layout.nodes[intf.label].match(/^([NSWE])([0-9]+)$/) ) {
+              layout.nodes[intf.label].match(/^([TBLR])([0-9]+)$/) ) {
             var off = +RegExp.$2 * unit / 2;
             switch(RegExp.$1) {
-            case 'N' : updateIntf(intf, x + off, y, 'bottom'); break;
-            case 'S' : updateIntf(intf, x + off, y + h, 'top'); break;
-            case 'W' : updateIntf(intf, x, y + off, 'right'); break;
-            case 'E' : updateIntf(intf, x + w, y + off, 'left'); break;
+            case 'T' : updateIntf(intf, x + off, y, 'bottom'); break;
+            case 'B' : updateIntf(intf, x + off, y + h, 'top'); break;
+            case 'L' : updateIntf(intf, x, y + off, 'right'); break;
+            case 'R' : updateIntf(intf, x + w, y + off, 'left'); break;
             }
           } else {
             transform(intf.node.$ui, 0, 0);
@@ -1517,6 +1517,13 @@ simcir.$ = function() {
           $dev.trigger('dispose');
         });
       } );
+      if (data.hideLabelOnWorkspace) {
+        device.$ui.on('deviceAdd', function() {
+          device.$ui.children('.simcir-device-label').css('display', 'none');
+        }).on('deviceRemove', function() {
+          device.$ui.children('.simcir-device-label').css('display', '');
+        });
+      }
       device.$ui.on('dblclick', function(event) {
         // open library,
         event.preventDefault();
