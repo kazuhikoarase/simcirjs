@@ -1517,7 +1517,7 @@ simcir.$ = function() {
           $dev.trigger('dispose');
         });
       } );
-      if (data.hideLabelOnWorkspace) {
+      if (data.hideLabelOnWorkspace || data.layout.hideLabelOnWorkspace) {
         device.$ui.on('deviceAdd', function() {
           device.$ui.children('.simcir-device-label').css('display', 'none');
         }).on('deviceRemove', function() {
