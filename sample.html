@@ -183,8 +183,21 @@ are disconnected internally when the device is reused.
 }
 </div>
 <p>
-To customize the layout of library, ...
+To customize the layout of library,
+add the "layout" property to your device with a text editor.
+<br/>
+"rows" and "cols" define the size.
+nodes property contains 'label - position' pairs of nodes.
 </p>
+<div class="code"
+>simcir.registerDevice('AltFullAdder',
+{
+         &#x22ee;
+  <span class="note">"layout":{"rows":8,"cols":8,"hideLabelOnWorkspace":true,</span>
+    <span class="note">"nodes":{"A":"T2","B":"T6","S":"B4","Cin":"R4","Cout":"L4"}},</span>
+  "devices":[
+         &#x22ee;
+</div>
 <!-- port from drawing of Illustrator. -->
 <svg version="1.1" id="l_1_" xmlns="http://www.w3.org/2000/svg"
    width="234px" height="168px" viewBox="198 159 234 168" 
