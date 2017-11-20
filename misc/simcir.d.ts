@@ -88,13 +88,21 @@ interface SimcirDevice<Def extends SimcirDeviceDef> {
 interface SimcirConnectorDef { from: string; to: string; }
 
 interface SimcirData {
-  width: number;
-  height: number;
-  toolbox: SimcirDeviceDef[];
-  showToolbox: boolean;
-  editable: boolean;
-  devices: SimcirDeviceInstance[];
-  connectors: SimcirConnectorDef[];
+  width?: number;
+  height?: number;
+  toolbox?: SimcirDeviceDef[];
+  showToolbox?: boolean;
+  editable?: boolean;
+  layout? : SimcirCustomLayout;
+  devices?: SimcirDeviceInstance[];
+  connectors?: SimcirConnectorDef[];
+}
+
+interface SimcirCustomLayout {
+  rows: number;
+  cols: number;
+  hideLabelOnWorkspace?: boolean;
+  nodes: { [label : string] : string };
 }
 
 type SimcirTypeFactory = <Def extends SimcirDeviceDef>(device : Def) => void;
