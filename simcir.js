@@ -1289,8 +1289,9 @@ simcir.$ = function() {
     dialogManager.add($dlg);
     var dragPoint = null;
     var dlg_mouseDownHandler = function(event) {
-      if (!$(event.target).hasClass('simcir-dialog') &&
-          !$(event.target).hasClass('simcir-dialog-title') ) {
+      if (event.button !== 0 ||
+          (!$(event.target).hasClass('simcir-dialog') &&
+           !$(event.target).hasClass('simcir-dialog-title')) ) {
         return;
       }
       event.preventDefault();
@@ -1312,7 +1313,9 @@ simcir.$ = function() {
       $(document).off('mouseup', dlg_mouseUpHandler);
     };
     $dlg.on('mousedown', dlg_mouseDownHandler);
-    $closeButton.on('mousedown', function() {
+    $closeButton.on('mousedown', function(event) {
+      if (event.button !== 0)
+        return;
       $dlg.trigger('close');
       $dlg.remove();
       dialogManager.remove($dlg);
@@ -1586,6 +1589,8 @@ simcir.$ = function() {
 
     var dragPoint = null;
     var bar_mouseDownHandler = function(event) {
+      if (event.button !== 0)
+        return;
       event.preventDefault();
       event.stopPropagation();
       var pos = transform($bar);
@@ -1606,6 +1611,8 @@ simcir.$ = function() {
     };
     $bar.on('mousedown', bar_mouseDownHandler);
     var body_mouseDownHandler = function(event) {
+      if (event.button !== 0)
+        return;
       event.preventDefault();
       event.stopPropagation();
       var off = $scrollbar.parent('svg').offset();
@@ -2094,6 +2101,8 @@ simcir.$ = function() {
     };
 
     var mouseDownHandler = function(event) {
+      if (event.button !== 0)
+        return;
       event.preventDefault();
       event.stopPropagation();
       var $target = $(event.target);
