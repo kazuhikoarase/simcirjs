@@ -1926,6 +1926,45 @@ simcir.$ = function() {
       return buf;
     };
 
+    var duplicateDevices = function(devices, offsetX, offsetY) {
+      var duplicated = [];
+      var outputPorts = [];
+      // Duplicate devices
+      $.each(devices, function(i, $dev) {
+        var pos = offset($dev);
+        var $dupdev = createDevice(controller($dev).deviceDef, false, scope);
+        transform($dupdev, pos.x - toolboxWidth + offsetX, pos.y + offsetY);
+        addDevice($dupdev);
+        duplicated.push($dupdev);
+
+        var device = controller($dev);
+        $.each(device.getOutputs(), function(j, port) {
+          outputPorts.push({
+            device: device,
+            deviceIndex: i,
+            port: port,
+            portIndex: j
+          });
+        });
+      });
+      // Duplicate connectors
+      $.each(devices, function(i, $dev) {
+        var device = controller($dev);
+        $.each(device.getInputs(), function(j, inNode) {
+          var output = inNode.getOutput();
+          if (output == null)
+            return;
+
+          var o = outputPorts.find(function(o) { return o.port === output; });
+          if (o)
+            output = controller(duplicated[o.deviceIndex]).getOutputs()[o.portIndex];
+          var input = controller(duplicated[i]).getInputs()[j];
+          connect(input.$ui, output.$ui);
+        });
+      });
+      return duplicated
+    };
+
     //-------------------------------------------
     // mouse operations
 
@@ -2038,15 +2077,18 @@ simcir.$ = function() {
       };
       dragCompleteHandler = function(event) {
         var $target = $(event.target);
+        var trashed = $target.closest('.simcir-toolbox').length > 0;
         enableEvents($dev, true);
         $.each($selectedDevices, function(i, $dev) {
-          if ($target.closest('.simcir-toolbox').length == 0) {
+          if (!trashed) {
             adjustDevice($dev);
             updateConnectors();
           } else {
             removeDevice($dev);
           }
         });
+        if (trashed)
+          deselectAll();
       };
     };
 
@@ -2133,6 +2175,57 @@ simcir.$ = function() {
       $(document).off('mouseup', mouseUpHandler);
     };
     $workspace.on('mousedown', mouseDownHandler);
+
+    //-------------------------------------------
+    //
+
+    var createToolIcons = function() {
+      var holder = createSVGElement('g');
+      holder.addClass('toolicon-holder');
+
+      var R = unit / 2;
+      var dupIcon = createSVGElement('g').
+          addClass('duplicate').
+          css({
+            cursor: 'pointer'
+          }).
+          on('mousedown', function(event) {
+            event.preventDefault()
+            event.stopPropagation()
+
+            var duplicated = duplicateDevices($selectedDevices, unit, unit);
+            deselectAll();
+            $.each(duplicated, (_i, $dev) => {
+              adjustDevice($dev);
+              addSelected($dev);
+            });
+          }, true);
+      transform(dupIcon, toolboxWidth + R, R);
+      holder.append(dupIcon);
+
+      var css = {
+        stroke: '#333',
+        strokeWidth: 2,
+        fill: '#fff'
+      };
+      var rect1 = $s.createSVGElement('rect').
+          attr({x: -2, y: -R + 2, width: R * 2, height: R * 2, rx: 5, ry: 5}).
+          css(css);
+      dupIcon.append(rect1);
+
+      var rect2 = $s.createSVGElement('rect').
+          attr({x: -R + 2, y: 0, width: R * 2, height: R * 2, rx: 5, ry: 5}).
+          css(css);
+      dupIcon.append(rect2);
+
+      var title = $s.createSVGElement('title');
+      title.text('Duplicate selection');
+      dupIcon.append(title);
+
+      $workspace.append(holder);
+    };
+    if (data.showToolbox)
+      createToolIcons();
 
     //-------------------------------------------
     //
