@@ -658,14 +658,14 @@
   // register direct current source
   $s.registerDevice('DC', function(device) {
     device.addOutput();
+    device.getOutputs()[0].setValue(onValue);  // Enable DC on default.
     var super_createUI = device.createUI;
     device.createUI = function() {
       super_createUI();
       device.$ui.addClass('simcir-basicset-dc');
     };
-    device.$ui.on('deviceAdd', function() {
-      device.getOutputs()[0].setValue(onValue);
-    });
+    //device.$ui.on('deviceAdd', function() {
+    //});
     device.$ui.on('deviceRemove', function() {
       device.getOutputs()[0].setValue(null);
     });
